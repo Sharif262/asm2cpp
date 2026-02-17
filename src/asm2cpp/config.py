@@ -26,8 +26,9 @@ class Config:
     primary_decompiler: str = "ghidra"  # ghidra, retdec
 
     # LLM settings
-    model: str = "claude-sonnet-4-20250514"
+    llm_model: str = "claude-sonnet-4-20250514"
     max_refinement_attempts: int = 5
+    anthropic_api_key: Optional[str] = field(default_factory=lambda: os.environ.get("ANTHROPIC_API_KEY"))
 
     # Compilation
     compiler: str = "g++"
@@ -37,6 +38,9 @@ class Config:
     # Validation
     run_tests: bool = True
     test_timeout: int = 60  # seconds
+
+    # Docker
+    use_docker: bool = False  # Use Docker for cross-compilation/assembly
 
     def __post_init__(self):
         self.output_dir = Path(self.output_dir)
