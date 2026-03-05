@@ -1,0 +1,21 @@
+/* WARNING: Unknown calling convention -- yet parameter storage is locked */
+/* unsigned char* std::__uninitialized_allocator_copy[abi:ne200100]<std::allocator<unsigned char>,
+   unsigned char const*, unsigned char const*, unsigned char*>(std::allocator<unsigned char>&,
+   unsigned char const*, unsigned char const*, unsigned char*) */
+
+uchar * std::
+        __uninitialized_allocator_copy_abi_ne200100_<std::allocator<unsigned_char>,unsigned_char_const*,unsigned_char_const*,unsigned_char*>
+                  (allocator *param_1,uchar *param_2,uchar *param_3,uchar *param_4)
+{
+  uchar *puVar1;
+  undefined1 auVar2 [16];
+  
+  auVar2 = __unwrap_range_abi_ne200100_<unsigned_char_const*,unsigned_char_const*>(param_2,param_3);
+  puVar1 = (uchar *)__unwrap_iter_abi_ne200100_<unsigned_char*,std::__unwrap_iter_impl<unsigned_char*,true>,0>
+                              (param_4);
+  puVar1 = __uninitialized_allocator_copy_impl_abi_ne200100_<std::allocator<unsigned_char>,unsigned_char_const*,unsigned_char_const*,unsigned_char*>
+                     (param_1,auVar2._0_8_,auVar2._8_8_,puVar1);
+  puVar1 = __rewrap_iter_abi_ne200100_<unsigned_char*,unsigned_char*,std::__unwrap_iter_impl<unsigned_char*,true>>
+                     (param_4,puVar1);
+  return puVar1;
+}

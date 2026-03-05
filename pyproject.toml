@@ -40,8 +40,8 @@ dev = [
 asm2cpp = "asm2cpp.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/aaronsharif/asm2cpp"
-Repository = "https://github.com/aaronsharif/asm2cpp"
+Homepage = "https://github.com/Sharif262/asm2cpp"
+Repository = "https://github.com/Sharif262/asm2cpp"
 
 [tool.setuptools.packages.find]
 where = ["src"]

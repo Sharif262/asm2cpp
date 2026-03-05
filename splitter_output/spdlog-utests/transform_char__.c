@@ -1,0 +1,49 @@
+/* std::string std::regex_traits<char>::transform<char*>(char*, char*) const */
+
+void std::regex_traits<char>::transform<char*>(char *param_1,char *param_2)
+{
+  ulong uVar1;
+  undefined8 *****pppppuVar2;
+  char *in_x2;
+  ulong uVar3;
+  undefined8 ****local_58;
+  ulong local_50;
+  undefined8 uStack_48;
+  
+  uVar3 = (long)in_x2 - (long)param_2;
+  if (0x7ffffffffffffff7 < uVar3) {
+                    /* WARNING: Subroutine does not return */
+    wstring::__throw_length_error_abi_ne200100_();
+  }
+  if (uVar3 < 0x17) {
+    uStack_48 = CONCAT17((char)uVar3,(undefined7)uStack_48);
+    pppppuVar2 = &local_58;
+  }
+  else {
+    uVar1 = 0x19;
+    if ((uVar3 | 7) != 0x17) {
+      uVar1 = (uVar3 | 7) + 1;
+    }
+    pppppuVar2 = operator_new(uVar1);
+    uStack_48 = uVar1 | 0x8000000000000000;
+    local_50 = uVar3;
+    local_58 = pppppuVar2;
+  }
+  if (in_x2 != param_2) {
+    _memcpy(pppppuVar2,param_2,uVar3);
+  }
+  *(undefined1 *)((long)pppppuVar2 + uVar3) = 0;
+  uVar3 = local_50;
+  pppppuVar2 = (undefined8 *****)local_58;
+  if (-1 < (long)uStack_48) {
+    uVar3 = uStack_48 >> 0x38;
+    pppppuVar2 = &local_58;
+  }
+  (**(code **)(**(long **)(param_1 + 0x10) + 0x20))
+            (*(long **)(param_1 + 0x10),pppppuVar2,(long)pppppuVar2 + uVar3);
+  if ((long)uStack_48 < 0) {
+    operator_delete(local_58);
+    return;
+  }
+  return;
+}

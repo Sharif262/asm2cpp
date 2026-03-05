@@ -1,0 +1,19 @@
+/* wchar_t fmt::v12::detail::decimal_point_impl<wchar_t>(fmt::v12::locale_ref) */
+
+wchar_t fmt::v12::detail::decimal_point_impl<wchar_t>(locale *param_1)
+{
+  wchar_t wVar1;
+  long *plVar2;
+  id aiStack_28 [8];
+  
+  if (param_1 == (locale *)0x0) {
+    std::locale::locale(aiStack_28);
+  }
+  else {
+    std::locale::locale(aiStack_28,param_1);
+  }
+  plVar2 = (long *)std::locale::use_facet(aiStack_28);
+  wVar1 = (**(code **)(*plVar2 + 0x18))();
+  std::locale::~locale(aiStack_28);
+  return wVar1;
+}

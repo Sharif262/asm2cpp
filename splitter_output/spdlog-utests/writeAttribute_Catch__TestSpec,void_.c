@@ -1,0 +1,32 @@
+/* Catch::XmlWriter& Catch::XmlWriter::writeAttribute<Catch::TestSpec, void>(Catch::StringRef,
+   Catch::TestSpec const&) */
+
+XmlWriter *
+Catch::XmlWriter::writeAttribute<Catch::TestSpec,void>
+          (undefined8 param_1,undefined8 param_2,undefined8 param_3,TestSpec *param_4)
+{
+  undefined8 ***pppuVar1;
+  XmlWriter *pXVar2;
+  undefined8 **local_58;
+  long lStack_50;
+  char local_41;
+  ReusableStringStream aRStack_40 [8];
+  ostream *local_38;
+  
+  ReusableStringStream::ReusableStringStream(aRStack_40);
+  TestSpec::serializeTo(param_4,local_38);
+  ReusableStringStream::str();
+  pppuVar1 = (undefined8 ***)local_58;
+  if (-1 < (long)local_41) {
+    pppuVar1 = &local_58;
+  }
+  if (-1 < local_41) {
+    lStack_50 = (long)local_41;
+  }
+  pXVar2 = (XmlWriter *)writeAttribute(param_1,param_2,param_3,pppuVar1,lStack_50);
+  if (local_41 < '\0') {
+    operator_delete(local_58);
+  }
+  ReusableStringStream::~ReusableStringStream(aRStack_40);
+  return pXVar2;
+}

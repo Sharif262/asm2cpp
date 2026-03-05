@@ -1,0 +1,305 @@
+{
+  "source": "ghidra_dataset/simple_test_x86/simple_test_x86_decompiled.c",
+  "functions": [
+    {
+      "name": "add",
+      "lines": 9,
+      "address": "100000500"
+    },
+    {
+      "name": "factorial",
+      "lines": 18,
+      "address": "100000520"
+    },
+    {
+      "name": "entry",
+      "lines": 22,
+      "address": "100000560"
+    },
+    {
+      "name": "operator<",
+      "lines": 17,
+      "address": "100000600"
+    },
+    {
+      "name": "operator<<[abi:ne200100]",
+      "lines": 11,
+      "address": "100000640"
+    },
+    {
+      "name": "endl[abi:ne200100]<char,std::char_traits<char>>",
+      "lines": 13,
+      "address": "100000660"
+    },
+    {
+      "name": "__put_character_sequence[abi:ne200100]<char,std::char_traits<char>>",
+      "lines": 56,
+      "address": "1000006b0"
+    },
+    {
+      "name": "length[abi:ne200100]",
+      "lines": 10,
+      "address": "100000860"
+    },
+    {
+      "name": "operator.cast.to.bool[abi:ne200100]",
+      "lines": 9,
+      "address": "100000880"
+    },
+    {
+      "name": "__pad_and_output[abi:ne200100]<char,std::char_traits<char>>",
+      "lines": 83,
+      "address": "1000008a0"
+    },
+    {
+      "name": "ostreambuf_iterator[abi:ne200100]",
+      "lines": 13,
+      "address": "100000a80"
+    },
+    {
+      "name": "flags[abi:ne200100]",
+      "lines": 9,
+      "address": "100000ab0"
+    },
+    {
+      "name": "fill[abi:ne200100]",
+      "lines": 21,
+      "address": "100000ad0"
+    },
+    {
+      "name": "failed[abi:ne200100]",
+      "lines": 11,
+      "address": "100000b30"
+    },
+    {
+      "name": "setstate[abi:ne200100]",
+      "lines": 10,
+      "address": "100000b50"
+    },
+    {
+      "name": "___clang_call_terminate",
+      "lines": 9,
+      "address": "100000b80"
+    },
+    {
+      "name": "width[abi:ne200100]",
+      "lines": 9,
+      "address": "100000b90"
+    },
+    {
+      "name": "sputn[abi:ne200100]",
+      "lines": 10,
+      "address": "100000bb0"
+    },
+    {
+      "name": "string[abi:ne200100]",
+      "lines": 10,
+      "address": "100000be0"
+    },
+    {
+      "name": "data[abi:ne200100]",
+      "lines": 13,
+      "address": "100000c10"
+    },
+    {
+      "name": "width[abi:ne200100]",
+      "lines": 13,
+      "address": "100000c40"
+    },
+    {
+      "name": "string[abi:ne200100]",
+      "lines": 11,
+      "address": "100000c70"
+    },
+    {
+      "name": "allocator[abi:ne200100]",
+      "lines": 10,
+      "address": "100000cb0"
+    },
+    {
+      "name": "allocator[abi:ne200100]",
+      "lines": 10,
+      "address": "100000cd0"
+    },
+    {
+      "name": "__non_trivial_if[abi:ne200100]",
+      "lines": 9,
+      "address": "100000cf0"
+    },
+    {
+      "name": "__to_address[abi:ne200100]<char_const>",
+      "lines": 10,
+      "address": "100000d00"
+    },
+    {
+      "name": "__get_pointer[abi:ne200100]",
+      "lines": 19,
+      "address": "100000d10"
+    },
+    {
+      "name": "__is_long[abi:ne200100]",
+      "lines": 12,
+      "address": "100000d60"
+    },
+    {
+      "name": "__get_long_pointer[abi:ne200100]",
+      "lines": 9,
+      "address": "100000d80"
+    },
+    {
+      "name": "__get_short_pointer[abi:ne200100]",
+      "lines": 10,
+      "address": "100000da0"
+    },
+    {
+      "name": "pointer_to[abi:ne200100]",
+      "lines": 9,
+      "address": "100000dc0"
+    },
+    {
+      "name": "ostreambuf_iterator[abi:ne200100]",
+      "lines": 16,
+      "address": "100000dd0"
+    },
+    {
+      "name": "rdbuf[abi:ne200100]",
+      "lines": 10,
+      "address": "100000e20"
+    },
+    {
+      "name": "rdbuf[abi:ne200100]",
+      "lines": 9,
+      "address": "100000e40"
+    },
+    {
+      "name": "__is_set[abi:ne200100]",
+      "lines": 16,
+      "address": "100000e60"
+    },
+    {
+      "name": "widen[abi:ne200100]",
+      "lines": 21,
+      "address": "100000e90"
+    },
+    {
+      "name": "operator=[abi:ne200100]",
+      "lines": 12,
+      "address": "100000f10"
+    },
+    {
+      "name": "__get[abi:ne200100]",
+      "lines": 11,
+      "address": "100000f30"
+    },
+    {
+      "name": "eof[abi:ne200100]",
+      "lines": 9,
+      "address": "100000f40"
+    },
+    {
+      "name": "use_facet[abi:ne200100]<std::ctype<char>>",
+      "lines": 13,
+      "address": "100000f50"
+    },
+    {
+      "name": "widen[abi:ne200100]",
+      "lines": 16,
+      "address": "100000f80"
+    },
+    {
+      "name": "setstate[abi:ne200100]",
+      "lines": 10,
+      "address": "100000fb0"
+    },
+    {
+      "name": "__constexpr_strlen[abi:ne200100]<char>",
+      "lines": 13,
+      "address": "100000fe0"
+    },
+    {
+      "name": "__Unwind_Resume",
+      "lines": 12,
+      "address": "100000ffc"
+    },
+    {
+      "name": "use_facet",
+      "lines": 13,
+      "address": "100001002"
+    },
+    {
+      "name": "getloc",
+      "lines": 13,
+      "address": "100001008"
+    },
+    {
+      "name": "__init",
+      "lines": 13,
+      "address": "10000100e"
+    },
+    {
+      "name": "~string",
+      "lines": 12,
+      "address": "100001014"
+    },
+    {
+      "name": "put",
+      "lines": 13,
+      "address": "10000101a"
+    },
+    {
+      "name": "flush",
+      "lines": 13,
+      "address": "100001020"
+    },
+    {
+      "name": "sentry",
+      "lines": 12,
+      "address": "100001026"
+    },
+    {
+      "name": "~sentry",
+      "lines": 12,
+      "address": "10000102c"
+    },
+    {
+      "name": "operator<<",
+      "lines": 12,
+      "address": "100001032"
+    },
+    {
+      "name": "~locale",
+      "lines": 12,
+      "address": "100001038"
+    },
+    {
+      "name": "__set_badbit_and_consider_rethrow",
+      "lines": 13,
+      "address": "10000103e"
+    },
+    {
+      "name": "clear",
+      "lines": 13,
+      "address": "100001044"
+    },
+    {
+      "name": "terminate",
+      "lines": 13,
+      "address": "10000104a"
+    },
+    {
+      "name": "___cxa_begin_catch",
+      "lines": 10,
+      "address": "100001050"
+    },
+    {
+      "name": "___cxa_end_catch",
+      "lines": 10,
+      "address": "100001056"
+    },
+    {
+      "name": "_strlen",
+      "lines": 14,
+      "address": "10000105c"
+    }
+  ]
+}

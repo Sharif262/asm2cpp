@@ -1,0 +1,33 @@
+undefined8 *
+__ZNSt3__112basic_stringIcNS_11char_traitsIcEENS_9allocatorIcEEEC1B8ne200100ILi0EEEPKc
+          (undefined8 *param_1,char *param_2)
+{
+  ulong uVar1;
+  size_t sVar2;
+  undefined8 *puVar3;
+  
+  sVar2 = _strlen(param_2);
+  if (0x7ffffffffffffff7 < sVar2) {
+                    /* WARNING: Subroutine does not return */
+    std::wstring::__throw_length_error_abi_ne200100_();
+  }
+  if (sVar2 < 0x17) {
+    *(char *)((long)param_1 + 0x17) = (char)sVar2;
+    puVar3 = param_1;
+    if (sVar2 == 0) goto LAB_100008914;
+  }
+  else {
+    uVar1 = 0x19;
+    if ((sVar2 | 7) != 0x17) {
+      uVar1 = (sVar2 | 7) + 1;
+    }
+    puVar3 = operator_new(uVar1);
+    param_1[1] = sVar2;
+    param_1[2] = uVar1 | 0x8000000000000000;
+    *param_1 = puVar3;
+  }
+  _memmove(puVar3,param_2,sVar2);
+LAB_100008914:
+  *(undefined1 *)((long)puVar3 + sVar2) = 0;
+  return param_1;
+}

@@ -1,0 +1,875 @@
+{
+  "source": "ghidra_dataset/toml_simple_test/toml_simple_test_decompiled.c",
+  "functions": [
+    {
+      "name": "entry",
+      "lines": 380,
+      "address": "1000005d8"
+    },
+    {
+      "name": "endl[abi:ne200100]<char,std::char_traits<char>>",
+      "lines": 19,
+      "address": "10000105c"
+    },
+    {
+      "name": "~table",
+      "lines": 29,
+      "address": "1000010ec"
+    },
+    {
+      "name": "operator<<",
+      "lines": 17,
+      "address": "100001170"
+    },
+    {
+      "name": "___clang_call_terminate",
+      "lines": 24,
+      "address": "1000011f8"
+    },
+    {
+      "name": "~utf8_reader",
+      "lines": 26,
+      "address": "100001208"
+    },
+    {
+      "name": "parser",
+      "lines": 142,
+      "address": "100001258"
+    },
+    {
+      "name": "~source_region",
+      "lines": 23,
+      "address": "10000156c"
+    },
+    {
+      "name": "parse_document",
+      "lines": 136,
+      "address": "1000015bc"
+    },
+    {
+      "name": "update_region_ends",
+      "lines": 60,
+      "address": "100001884"
+    },
+    {
+      "name": "~parse_key_buffer",
+      "lines": 30,
+      "address": "100001984"
+    },
+    {
+      "name": "~table",
+      "lines": 30,
+      "address": "1000019e4"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 53,
+      "address": "100001a68"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 55,
+      "address": "100001b38"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 51,
+      "address": "100001c14"
+    },
+    {
+      "name": "is_table",
+      "lines": 9,
+      "address": "100001cdc"
+    },
+    {
+      "name": "is_array_of_tables",
+      "lines": 9,
+      "address": "100001ce4"
+    },
+    {
+      "name": "as_table",
+      "lines": 9,
+      "address": "100001cec"
+    },
+    {
+      "name": "as_string",
+      "lines": 9,
+      "address": "100001cf0"
+    },
+    {
+      "name": "consume_leading_whitespace",
+      "lines": 90,
+      "address": "100001cf8"
+    },
+    {
+      "name": "consume_line_break",
+      "lines": 65,
+      "address": "100001f50"
+    },
+    {
+      "name": "consume_comment",
+      "lines": 53,
+      "address": "100002024"
+    },
+    {
+      "name": "parse_table_header",
+      "lines": 869,
+      "address": "100002148"
+    },
+    {
+      "name": "parse_key_value_pair_and_insert",
+      "lines": 471,
+      "address": "1000033ac"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 22,
+      "address": "100003db8"
+    },
+    {
+      "name": "current_position",
+      "lines": 22,
+      "address": "100003df8"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,toml::v3::impl::escaped_codepoint,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 22,
+      "address": "100003e24"
+    },
+    {
+      "name": "advance",
+      "lines": 106,
+      "address": "100003e64"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,toml::v3::impl::escaped_codepoint,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 48,
+      "address": "100004104"
+    },
+    {
+      "name": "finish",
+      "lines": 19,
+      "address": "1000041e4"
+    },
+    {
+      "name": "parse_error",
+      "lines": 29,
+      "address": "100004234"
+    },
+    {
+      "name": "~parse_error",
+      "lines": 25,
+      "address": "10000428c"
+    },
+    {
+      "name": "~parse_error",
+      "lines": 27,
+      "address": "1000042ec"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 36,
+      "address": "100004350"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 35,
+      "address": "10000437c"
+    },
+    {
+      "name": "parse_key",
+      "lines": 190,
+      "address": "100004410"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 111,
+      "address": "100004850"
+    },
+    {
+      "name": "emplace_hint<toml::v3::table,toml::v3::key,,0>",
+      "lines": 82,
+      "address": "1000048b0"
+    },
+    {
+      "name": "make_key",
+      "lines": 68,
+      "address": "100004a40"
+    },
+    {
+      "name": "~key",
+      "lines": 31,
+      "address": "100004b60"
+    },
+    {
+      "name": "push_back[abi:ne200100]",
+      "lines": 65,
+      "address": "100004bd8"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 56,
+      "address": "100004cc4"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 84,
+      "address": "100004dc4"
+    },
+    {
+      "name": "emplace_hint<toml::v3::array,toml::v3::key,,0>",
+      "lines": 81,
+      "address": "100004f64"
+    },
+    {
+      "name": "parse_bare_key_segment",
+      "lines": 57,
+      "address": "1000050e8"
+    },
+    {
+      "name": "parse_string",
+      "lines": 110,
+      "address": "100005240"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,unsigned_long,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 149,
+      "address": "1000054ac"
+    },
+    {
+      "name": "parse_literal_string",
+      "lines": 145,
+      "address": "1000054ec"
+    },
+    {
+      "name": "parse_basic_string",
+      "lines": 418,
+      "address": "100005890"
+    },
+    {
+      "name": "go_back",
+      "lines": 42,
+      "address": "10000634c"
+    },
+    {
+      "name": "push_back[abi:ne200100]",
+      "lines": 72,
+      "address": "100006430"
+    },
+    {
+      "name": "__throw_length_error[abi:ne200100]",
+      "lines": 12,
+      "address": "100006524"
+    },
+    {
+      "name": "__throw_length_error[abi:ne200100]",
+      "lines": 15,
+      "address": "100006538"
+    },
+    {
+      "name": "length_error[abi:ne200100]",
+      "lines": 13,
+      "address": "100006588"
+    },
+    {
+      "name": "__throw_bad_array_new_length[abi:ne200100]",
+      "lines": 16,
+      "address": "1000065ac"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,unsigned_long,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 46,
+      "address": "1000065d4"
+    },
+    {
+      "name": "concatenate<unsigned_long_long>",
+      "lines": 75,
+      "address": "1000066b4"
+    },
+    {
+      "name": "ostringstream[abi:ne200100]",
+      "lines": 46,
+      "address": "10000687c"
+    },
+    {
+      "name": "~ostringstream",
+      "lines": 24,
+      "address": "1000069a0"
+    },
+    {
+      "name": "__init_buf_ptrs[abi:ne200100]",
+      "lines": 61,
+      "address": "100006a28"
+    },
+    {
+      "name": "__emplace_hint_unique_key_args<toml::v3::key,toml::v3::key,std::unique_ptr<toml::v3::node,std::default_delete<toml::v3::node>>>",
+      "lines": 80,
+      "address": "100006b34"
+    },
+    {
+      "name": "__find_equal<toml::v3::key>",
+      "lines": 281,
+      "address": "100006c14"
+    },
+    {
+      "name": "__tree_balance_after_insert[abi:ne200100]<std::__tree_node_base<void*>*>",
+      "lines": 108,
+      "address": "10000700c"
+    },
+    {
+      "name": "erase",
+      "lines": 75,
+      "address": "1000071a8"
+    },
+    {
+      "name": "__tree_remove[abi:ne200100]<std::__tree_node_base<void*>*>",
+      "lines": 237,
+      "address": "100007294"
+    },
+    {
+      "name": "__throw_length_error[abi:ne200100]",
+      "lines": 10,
+      "address": "100007618"
+    },
+    {
+      "name": "push_back[abi:ne200100]",
+      "lines": 75,
+      "address": "10000762c"
+    },
+    {
+      "name": "~array",
+      "lines": 45,
+      "address": "100007720"
+    },
+    {
+      "name": "~array",
+      "lines": 46,
+      "address": "1000077e4"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 38,
+      "address": "1000078a8"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 40,
+      "address": "100007944"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 35,
+      "address": "1000079e8"
+    },
+    {
+      "name": "type",
+      "lines": 9,
+      "address": "100007a84"
+    },
+    {
+      "name": "is_array_of_tables",
+      "lines": 28,
+      "address": "100007a8c"
+    },
+    {
+      "name": "~value",
+      "lines": 24,
+      "address": "100007ae0"
+    },
+    {
+      "name": "is_value_terminator",
+      "lines": 57,
+      "address": "100007b40"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 917,
+      "address": "100007cb0"
+    },
+    {
+      "name": "parse_value",
+      "lines": 903,
+      "address": "100007d04"
+    },
+    {
+      "name": "emplace_hint<std::unique_ptr<toml::v3::node,std::default_delete<toml::v3::node>>,toml::v3::key,std::unique_ptr<toml::v3::node,std::default_delete<toml::v3::node>>,0>",
+      "lines": 82,
+      "address": "100008a54"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 74,
+      "address": "100008b98"
+    },
+    {
+      "name": "parse_value_known_prefixes",
+      "lines": 112,
+      "address": "100008d04"
+    },
+    {
+      "name": "operator()",
+      "lines": 3,
+      "address": "100008f3c"
+    },
+    {
+      "name": "operator()",
+      "lines": 3,
+      "address": "1000091b4"
+    },
+    {
+      "name": "parse_hex_float",
+      "lines": 35,
+      "address": "10000920c"
+    },
+    {
+      "name": "parse_integer<16ull>",
+      "lines": 306,
+      "address": "1000092d0"
+    },
+    {
+      "name": "parse_integer<8ull>",
+      "lines": 294,
+      "address": "100009988"
+    },
+    {
+      "name": "parse_integer<2ull>",
+      "lines": 294,
+      "address": "100009fc4"
+    },
+    {
+      "name": "parse_float",
+      "lines": 386,
+      "address": "10000a600"
+    },
+    {
+      "name": "parse_inf_or_nan",
+      "lines": 155,
+      "address": "10000aeec"
+    },
+    {
+      "name": "parse_integer<10ull>",
+      "lines": 247,
+      "address": "10000b278"
+    },
+    {
+      "name": "parse_time",
+      "lines": 553,
+      "address": "10000b7b8"
+    },
+    {
+      "name": "parse_date",
+      "lines": 354,
+      "address": "10000c1d4"
+    },
+    {
+      "name": "parse_date_time",
+      "lines": 333,
+      "address": "10000c970"
+    },
+    {
+      "name": "parse_array",
+      "lines": 159,
+      "address": "10000d02c"
+    },
+    {
+      "name": "parse_inline_table",
+      "lines": 161,
+      "address": "10000d380"
+    },
+    {
+      "name": "parse_boolean",
+      "lines": 137,
+      "address": "10000d714"
+    },
+    {
+      "name": "~value",
+      "lines": 28,
+      "address": "10000da20"
+    },
+    {
+      "name": "~value",
+      "lines": 29,
+      "address": "10000daac"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 15,
+      "address": "10000db38"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 9,
+      "address": "10000db58"
+    },
+    {
+      "name": "type",
+      "lines": 9,
+      "address": "10000db68"
+    },
+    {
+      "name": "~value",
+      "lines": 25,
+      "address": "10000db70"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 13,
+      "address": "10000dbd0"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 9,
+      "address": "10000dbf0"
+    },
+    {
+      "name": "type",
+      "lines": 9,
+      "address": "10000dc00"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 13,
+      "address": "10000dc08"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 9,
+      "address": "10000dc20"
+    },
+    {
+      "name": "type",
+      "lines": 9,
+      "address": "10000dc30"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 13,
+      "address": "10000dc38"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 9,
+      "address": "10000dc58"
+    },
+    {
+      "name": "type",
+      "lines": 9,
+      "address": "10000dc68"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 68,
+      "address": "10000dc70"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 65,
+      "address": "10000dcbc"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,unsigned_long,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 73,
+      "address": "10000ddf0"
+    },
+    {
+      "name": "stringstream[abi:ne200100]",
+      "lines": 60,
+      "address": "10000de3c"
+    },
+    {
+      "name": "~stringstream",
+      "lines": 28,
+      "address": "10000dfa0"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,unsigned_long,std::basic_string_view<char,std::char_traits<char>>,std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 57,
+      "address": "10000e028"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,unsigned_int>",
+      "lines": 46,
+      "address": "10000e13c"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,unsigned_long>",
+      "lines": 39,
+      "address": "10000e174"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,unsigned_int>",
+      "lines": 37,
+      "address": "10000e1ac"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,unsigned_long>",
+      "lines": 37,
+      "address": "10000e250"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 15,
+      "address": "10000e2f4"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 9,
+      "address": "10000e30c"
+    },
+    {
+      "name": "type",
+      "lines": 9,
+      "address": "10000e31c"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,unsigned_int,std::basic_string_view<char,std::char_traits<char>>,unsigned_int>",
+      "lines": 51,
+      "address": "10000e324"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,unsigned_int,std::basic_string_view<char,std::char_traits<char>>,unsigned_int>",
+      "lines": 49,
+      "address": "10000e370"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 15,
+      "address": "10000e460"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 9,
+      "address": "10000e480"
+    },
+    {
+      "name": "type",
+      "lines": 9,
+      "address": "10000e490"
+    },
+    {
+      "name": "set_error<std::basic_string_view<char,std::char_traits<char>>,int>",
+      "lines": 38,
+      "address": "10000e498"
+    },
+    {
+      "name": "set_error_at<std::basic_string_view<char,std::char_traits<char>>,int>",
+      "lines": 37,
+      "address": "10000e4d0"
+    },
+    {
+      "name": "concatenate<long_long>",
+      "lines": 74,
+      "address": "10000e574"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 15,
+      "address": "10000e73c"
+    },
+    {
+      "name": "is_homogeneous",
+      "lines": 10,
+      "address": "10000e75c"
+    },
+    {
+      "name": "type",
+      "lines": 9,
+      "address": "10000e76c"
+    },
+    {
+      "name": "~parser",
+      "lines": 82,
+      "address": "10000e774"
+    },
+    {
+      "name": "utf8_reader<std::basic_string_view<char,std::char_traits<char>>&,std::basic_string_view<char,std::char_traits<char>>&>",
+      "lines": 63,
+      "address": "10000e8a4"
+    },
+    {
+      "name": "source_path",
+      "lines": 12,
+      "address": "10000e9b0"
+    },
+    {
+      "name": "read_next",
+      "lines": 44,
+      "address": "10000e9b8"
+    },
+    {
+      "name": "peek_eof",
+      "lines": 12,
+      "address": "10000ea48"
+    },
+    {
+      "name": "~utf8_reader",
+      "lines": 27,
+      "address": "10000ea58"
+    },
+    {
+      "name": "allocate_shared[abi:ne200100]<std::string_const,std::allocator<std::string>,std::basic_string_view<char,std::char_traits<char>>&,0>",
+      "lines": 57,
+      "address": "10000eaa8"
+    },
+    {
+      "name": "~__shared_ptr_emplace",
+      "lines": 14,
+      "address": "10000eb90"
+    },
+    {
+      "name": "~__shared_ptr_emplace",
+      "lines": 17,
+      "address": "10000eba4"
+    },
+    {
+      "name": "__on_zero_shared",
+      "lines": 16,
+      "address": "10000ebc8"
+    },
+    {
+      "name": "__on_zero_shared_weak",
+      "lines": 13,
+      "address": "10000ebdc"
+    },
+    {
+      "name": "read_next_block",
+      "lines": 195,
+      "address": "10000ebe0"
+    },
+    {
+      "name": "operator()",
+      "lines": 4,
+      "address": "10000efa0"
+    },
+    {
+      "name": "find<std::basic_string_view<char,std::char_traits<char>>>",
+      "lines": 109,
+      "address": "10000eff4"
+    },
+    {
+      "name": "destroy",
+      "lines": 53,
+      "address": "10000f0fc"
+    },
+    {
+      "name": "print_to_stream",
+      "lines": 35,
+      "address": "10000f1a0"
+    },
+    {
+      "name": "print_integer_to_stream<unsigned_int>",
+      "lines": 137,
+      "address": "10000f2d8"
+    },
+    {
+      "name": "__put_character_sequence[abi:ne200100]<char,std::char_traits<char>>",
+      "lines": 46,
+      "address": "10000f634"
+    },
+    {
+      "name": "__pad_and_output[abi:ne200100]<char,std::char_traits<char>>",
+      "lines": 82,
+      "address": "10000f7a0"
+    },
+    {
+      "name": "_OUTLINED_FUNCTION_0",
+      "lines": 10,
+      "address": "10000f940"
+    },
+    {
+      "name": "~node",
+      "lines": 13,
+      "address": "10000f960"
+    },
+    {
+      "name": "error_builder",
+      "lines": 35,
+      "address": "10000f964"
+    },
+    {
+      "name": "append<toml::v3::impl::escaped_codepoint>",
+      "lines": 100,
+      "address": "10000fa04"
+    },
+    {
+      "name": "append<unsigned_long>",
+      "lines": 16,
+      "address": "10000fb50"
+    },
+    {
+      "name": "append<unsigned_int>",
+      "lines": 16,
+      "address": "10000fb90"
+    },
+    {
+      "name": "append<int>",
+      "lines": 15,
+      "address": "10000fbd0"
+    },
+    {
+      "name": "parse_document",
+      "lines": 10,
+      "address": "10000fc10"
+    },
+    {
+      "name": "advance",
+      "lines": 10,
+      "address": "10000fc38"
+    },
+    {
+      "name": "make_key",
+      "lines": 10,
+      "address": "10000fc60"
+    },
+    {
+      "name": "parse_value",
+      "lines": 10,
+      "address": "10000fc88"
+    },
+    {
+      "name": "parse_value",
+      "lines": 10,
+      "address": "10000fcb0"
+    },
+    {
+      "name": "parse_value_known_prefixes",
+      "lines": 10,
+      "address": "10000fcd8"
+    },
+    {
+      "name": "parse_value_known_prefixes",
+      "lines": 10,
+      "address": "10000fd00"
+    },
+    {
+      "name": "parse_value_known_prefixes",
+      "lines": 10,
+      "address": "10000fd28"
+    },
+    {
+      "name": "operator()",
+      "lines": 3,
+      "address": "10000fd50"
+    },
+    {
+      "name": "operator()",
+      "lines": 3,
+      "address": "10000fd78"
+    },
+    {
+      "name": "parse_array",
+      "lines": 10,
+      "address": "10000fda0"
+    },
+    {
+      "name": "parse_array",
+      "lines": 10,
+      "address": "10000fdc8"
+    },
+    {
+      "name": "parse_inline_table",
+      "lines": 1091,
+      "address": "10000fdf0"
+    }
+  ]
+}

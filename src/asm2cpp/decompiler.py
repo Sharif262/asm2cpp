@@ -66,6 +66,7 @@ class Decompiler:
     # File extensions for detection
     BINARY_EXTENSIONS = {'.exe', '.elf', '.o', '.so', '.dylib', '.dll', ''}
     ASSEMBLY_EXTENSIONS = {'.s', '.S', '.asm', '.ASM'}
+    GHIDRA_EXTENSIONS = {'.c'}  # Ghidra decompiled output
 
     def __init__(self, config: Optional[Config] = None):
         """
@@ -133,17 +134,31 @@ class Decompiler:
             self._assembler = Assembler(use_docker=self.config.use_docker)
         return self._assembler
 
-    def detect_input_type(self, path: Path) -> Literal["binary", "assembly", "unknown"]:
+    def detect_input_type(self, path: Path) -> Literal["binary", "assembly", "ghidra", "unknown"]:
         """
-        Detect whether input is a binary or assembly file.
+        Detect whether input is a binary, assembly, or Ghidra output file.
 
         Args:
             path: Path to the input file.
 
         Returns:
-            'binary', 'assembly', or 'unknown'.
+            'binary', 'assembly', 'ghidra', or 'unknown'.
         """
         suffix = path.suffix.lower()
+
+        # Check for Ghidra decompiled output first
+        if suffix in self.GHIDRA_EXTENSIONS:
+            # Check if it looks like Ghidra output
+            try:
+                with open(path, 'r') as f:
+                    content = f.read(2000)
+                if '_decompiled' in path.name or any(marker in content for marker in [
+                    'undefined8', 'undefined4', 'undefined', 'ulong', 'uint',
+                    'PTR_', 'DAT_', 'LAB_', '/* WARNING:', 'operator_new',
+                ]):
+                    return "ghidra"
+            except:
+                pass
 
         if suffix in self.ASSEMBLY_EXTENSIONS:
             return "assembly"
@@ -210,6 +225,10 @@ class Decompiler:
 
         input_type = self.detect_input_type(input_path)
 
+        if input_type == "ghidra":
+            # Already have Ghidra output - just process it
+            return self._process_ghidra_output(input_path, output_dir)
+
         if input_type == "assembly":
             if backend == "llm" or backend == "auto":
                 # Direct LLM decompilation of assembly
@@ -260,6 +279,63 @@ class Decompiler:
             success=False,
             error=f"Unknown input type for: {input_path}",
         )
+
+    def _process_ghidra_output(
+        self,
+        ghidra_path: Path,
+        output_dir: Path,
+    ) -> DecompileResult:
+        """
+        Process existing Ghidra decompiled output.
+
+        Args:
+            ghidra_path: Path to the Ghidra output file.
+            output_dir: Directory for output files.
+
+        Returns:
+            DecompileResult with the processed code.
+        """
+        try:
+            from .splitter import GhidraSplitter
+            from .optimizer import GhidraOptimizer
+
+            # Parse functions from Ghidra output
+            splitter = GhidraSplitter.from_file(ghidra_path)
+            functions = splitter.parse()
+
+            # Filter to important functions
+            optimizer = GhidraOptimizer(max_functions=50, important_only=True)
+            plan = optimizer.create_plan(functions)
+
+            # Combine function code
+            code_parts = []
+            for batch in plan.batches:
+                for func in batch:
+                    code_parts.append(func.full_code)
+
+            code = "\n\n".join(code_parts)
+
+            # Extract function names
+            func_names = [f.name for batch in plan.batches for f in batch]
+
+            # Write output
+            output_path = output_dir / f"{ghidra_path.stem}.c"
+            output_path.write_text(code)
+
+            return DecompileResult(
+                code=code,
+                functions=func_names,
+                success=True,
+                source_path=output_path,
+            )
+
+        except Exception as e:
+            return DecompileResult(
+                code="",
+                functions=[],
+                success=False,
+                error=f"Failed to process Ghidra output: {str(e)}",
+            )
 
     def _decompile_assembly_via_ghidra(
         self,

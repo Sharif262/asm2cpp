@@ -1,4 +1,5 @@
-ls// Decompiled from: /Users/aaronsharif/inja/build/inja_test
+ls
+// Decompiled from: /Users/aaronsharif/inja/build/inja_test
 // Using Ghidra
 
 // Function: setTestSuite at 100000f90

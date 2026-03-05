@@ -1,0 +1,9 @@
+__non_trivial_if<true,std::allocator<std::__shared_ptr_emplace<bool,std::allocator<bool>>>> *
+__ZNSt3__19allocatorINS_20__shared_ptr_emplaceIbNS0_IbEEEEEC2B8ne200100IbEERKNS0_IT_EE
+          (__non_trivial_if<true,std::allocator<std::__shared_ptr_emplace<bool,std::allocator<bool>>>>
+           *param_1)
+{
+  std::__non_trivial_if<true,std::allocator<std::__shared_ptr_emplace<bool,std::allocator<bool>>>>::
+  __non_trivial_if_abi_ne200100_(param_1);
+  return param_1;
+}

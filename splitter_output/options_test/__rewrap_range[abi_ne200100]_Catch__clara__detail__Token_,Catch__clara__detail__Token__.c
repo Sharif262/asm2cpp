@@ -1,0 +1,13 @@
+/* WARNING: Unknown calling convention -- yet parameter storage is locked */
+/* Catch::clara::detail::Token* std::__rewrap_range[abi:ne200100]<Catch::clara::detail::Token*,
+   Catch::clara::detail::Token*>(Catch::clara::detail::Token*, Catch::clara::detail::Token*) */
+
+Token * std::__rewrap_range_abi_ne200100_<Catch::clara::detail::Token*,Catch::clara::detail::Token*>
+                  (Token *param_1,Token *param_2)
+{
+  Token *pTVar1;
+  
+  pTVar1 = __rewrap_iter_abi_ne200100_<Catch::clara::detail::Token*,Catch::clara::detail::Token*,std::__unwrap_iter_impl<Catch::clara::detail::Token*,true>>
+                     (param_1,param_2);
+  return pTVar1;
+}

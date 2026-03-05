@@ -1,0 +1,6 @@
+/* std::back_insert_iterator<std::vector<unsigned char, std::allocator<unsigned char> > >
+   std::transform[abi:ne200100]<std::__wrap_iter<std::any const*>,
+   std::back_insert_iterator<std::vector<unsigned char, std::allocator<unsigned char> > >,
+   argparse::Argument::any_cast_container<std::vector<unsigned char, std::allocator<unsigned char> >
+   >(std::vector<std::any, std::allocator<std::any> > const&)::{lambda(auto:1
+   const&)#1}>(std::__wrap_iter<std::any const*>, std::__wrap_iter<std::any const*>,

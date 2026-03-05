@@ -1,0 +1,20 @@
+{
+  "source": "ghidra_dataset/sample_riscv/sample_riscv_decompiled.c",
+  "functions": [
+    {
+      "name": "add_numbers",
+      "lines": 7,
+      "address": "00100000"
+    },
+    {
+      "name": "factorial",
+      "lines": 17,
+      "address": "0010003c"
+    },
+    {
+      "name": "main",
+      "lines": 11,
+      "address": "001000a8"
+    }
+  ]
+}
