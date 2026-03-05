@@ -100,6 +100,10 @@ asm2cpp/
 └── scripts/install.sh          # One-command installer
 ```
 
+## Skill conflicts (Gemini / Codex)
+
+If you see "Skill conflict detected: decompile" with multiple locations, choose **Keep Project-specific only**. That removes the global copies and keeps only the skill inside the repo. Always run your agent from the repo directory so it finds the skill.
+
 ## Without Ghidra
 
 You can still use asm2cpp on:
