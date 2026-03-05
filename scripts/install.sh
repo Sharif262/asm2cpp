@@ -115,21 +115,17 @@ fi
 # Ensure bin dir exists
 mkdir -p "$BIN_DIR"
 
-# Create main CLI wrapper
+# Create main CLI wrapper (direct exec, no slow venv activation)
 cat > "$BIN_DIR/asm2cpp" << WRAPPER
 #!/usr/bin/env bash
-set -euo pipefail
-source "$VENV_DIR/bin/activate"
-exec asm2cpp "\$@"
+exec "$VENV_DIR/bin/asm2cpp" "\$@"
 WRAPPER
 chmod +x "$BIN_DIR/asm2cpp"
 
-# Create decompile wrapper (alias for asm2cpp with common use case)
+# Create decompile wrapper (alias for asm2cpp)
 cat > "$BIN_DIR/decompile" << WRAPPER
 #!/usr/bin/env bash
-set -euo pipefail
-source "$VENV_DIR/bin/activate"
-exec asm2cpp "\$@"
+exec "$VENV_DIR/bin/asm2cpp" "\$@"
 WRAPPER
 chmod +x "$BIN_DIR/decompile"
 
