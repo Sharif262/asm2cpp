@@ -5,7 +5,7 @@ set -euo pipefail
 # Usage: curl -LsSf https://raw.githubusercontent.com/masc-ucsc/asm2cpp/main/scripts/install.sh | sh
 
 PROJECT="asm2cpp"
-REPO="https://github.com/masc-ucsc/asm2cpp.git"
+REPO="https://github.com/Sharif262/asm2cpp.git"
 INSTALL_DIR="${ASM2CPP_DIR:-$HOME/.asm2cpp}"
 BIN_DIR="$INSTALL_DIR/bin"
 
