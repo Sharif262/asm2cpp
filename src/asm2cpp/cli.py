@@ -12,9 +12,10 @@ def main():
         description=(
             "Called by the agent when you run /decompile. Do not run manually.\n\n"
             "USER WORKFLOW (agent only):\n"
-            "  1. Put your binary, assembly (.s/.asm), or Ghidra .c in your project\n"
-            "  2. In your agent: /decompile /path/to/your_file\n"
-            "  3. The agent runs asm2cpp, refines to C++, compiles, compares to original\n\n"
+            "  1. cd into the asm2cpp project (e.g. cd ~/work/asm2cpp) so the agent finds skills\n"
+            "  2. Put your binary, assembly (.s/.asm), or Ghidra .c in your project\n"
+            "  3. In your agent: /decompile /path/to/your_file\n"
+            "  4. The agent runs asm2cpp, refines to C++, compiles, compares to original\n\n"
             "This tool (invoked by the agent):\n"
             "  - Runs Ghidra/RetDec to decompile binaries, or parses assembly/Ghidra .c\n"
             "  - Parses and filters; outputs <stem>_parsed.c\n"
