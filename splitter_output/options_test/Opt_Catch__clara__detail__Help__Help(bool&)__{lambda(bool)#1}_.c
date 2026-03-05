@@ -1,2 +1,0 @@
-/* Catch::clara::detail::Opt::Opt<Catch::clara::detail::Help::Help(bool&)::{lambda(bool)#1}>(Catch::clara::detail::Help::Help(bool&)::{lambda(bool)#1}
-/* Catch::clara::detail::Opt::Opt<Catch::clara::detail::Help::Help(bool&)::{lambda(bool)#1}>(Catch::clara::detail::Help::Help(bool&)::{lambda(bool)#1}

@@ -1,7 +1,0 @@
-/* fmt::v12::basic_appender<char> fmt::v12::detail::write_padded<char, (fmt::v12::align)2,
-   fmt::v12::basic_appender<char>, fmt::v12::detail::write_fixed<char,
-   fmt::v12::detail::digit_grouping<char>, fmt::v12::basic_appender<char>,
-   fmt::v12::detail::dragonbox::decimal_fp<float> >(fmt::v12::basic_appender<char>,
-   fmt::v12::detail::dragonbox::decimal_fp<float> const&, int, char, fmt::v12::format_specs const&,
-   fmt::v12::sign,
-   fmt::v12::locale_ref)::{lambda(fmt::v12::basic_appender<char>)#2}&>(fmt::v12::basic_appender<char>,
