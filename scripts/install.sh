@@ -78,7 +78,12 @@ if [ "$MODE" = "project" ]; then
     if [ -d "$REPO_DIR/.git" ]; then
         echo "Updating existing installation..."
         cd "$REPO_DIR"
-        git pull --quiet
+        # Try fast-forward only first; if divergent, reset to origin
+        if ! git pull --ff-only --quiet 2>/dev/null; then
+            echo "Resetting to latest version (local changes will be discarded)..."
+            git fetch --quiet origin
+            git reset --hard --quiet origin/main
+        fi
     else
         echo "Cloning $PROJECT to $REPO_DIR..."
         git clone --quiet --depth 1 "$REPO" "$REPO_DIR"
@@ -88,7 +93,12 @@ else
     if [ -d "$REPO_DIR/.git" ]; then
         echo "Updating existing installation..."
         cd "$REPO_DIR"
-        git pull --quiet
+        # Try fast-forward only first; if divergent, reset to origin
+        if ! git pull --ff-only --quiet 2>/dev/null; then
+            echo "Resetting to latest version (local changes will be discarded)..."
+            git fetch --quiet origin
+            git reset --hard --quiet origin/main
+        fi
     else
         echo "Cloning $PROJECT..."
         mkdir -p "$(dirname "$REPO_DIR")"
