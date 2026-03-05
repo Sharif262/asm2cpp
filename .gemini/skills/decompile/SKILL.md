@@ -39,6 +39,16 @@ The agent automatically:
 
 When `/decompile <file>` is invoked:
 
+### Step 0: Auto-Install (First Use Only)
+
+Check if asm2cpp is installed and auto-install if needed:
+
+```bash
+python3 -c "import asm2cpp" 2>/dev/null || pip install -e . -q
+```
+
+This runs once and takes ~2 seconds. Skip if already installed.
+
 ### Step 1: Detect Input Type and Get Ghidra Output
 
 ```python
