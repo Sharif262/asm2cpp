@@ -34,6 +34,19 @@ ASSEMBLERS = {
     "arm": ["arm-linux-gnueabi-as", "arm-none-eabi-as"],
 }
 
+# Architecture to linker command mapping
+LINKERS = {
+    # RISC-V
+    "riscv64": ["riscv64-linux-gnu-ld", "riscv64-elf-ld"],
+    "riscv32": ["riscv32-linux-gnu-ld", "riscv32-elf-ld"],
+    # x86
+    "x86_64": ["ld", "x86_64-linux-gnu-ld"],
+    "x86": ["ld", "i686-linux-gnu-ld"],
+    # ARM
+    "arm64": ["aarch64-linux-gnu-ld", "ld"],
+    "arm": ["arm-linux-gnueabi-ld", "arm-none-eabi-ld"],
+}
+
 # Docker images for cross-assembly
 DOCKER_ASSEMBLERS = {
     "riscv64": ("asm2cpp-riscv", "riscv64-linux-gnu-as"),
@@ -291,3 +304,101 @@ class Assembler:
                 pass
 
         return self.find_assembler(arch) is not None
+
+    def find_linker(self, arch: str) -> Optional[str]:
+        """
+        Find an available linker for the given architecture.
+
+        Args:
+            arch: Target architecture.
+
+        Returns:
+            Path to linker executable, or None if not found.
+        """
+        candidates = LINKERS.get(arch, ["ld"])
+
+        for cmd in candidates:
+            try:
+                result = subprocess.run(
+                    [cmd, "--version"],
+                    capture_output=True,
+                    timeout=5,
+                )
+                if result.returncode == 0:
+                    return cmd
+            except (subprocess.TimeoutExpired, FileNotFoundError):
+                continue
+
+        return None
+
+    def assemble_and_link(
+        self,
+        assembly_path: Path,
+        output_path: Optional[Path] = None,
+        arch: Optional[str] = None,
+    ) -> AssembleResult:
+        """
+        Assemble and link an assembly file directly to an executable.
+
+        Args:
+            assembly_path: Path to the .s/.asm file.
+            output_path: Path for output executable. Auto-generated if None.
+            arch: Target architecture. Auto-detected if None.
+
+        Returns:
+            AssembleResult with the output path or error.
+        """
+        # First assemble to object file
+        with tempfile.TemporaryDirectory() as tmpdir:
+            obj_path = Path(tmpdir) / "temp.o"
+
+            result = self.assemble(assembly_path, obj_path, arch)
+            if not result.success:
+                return result
+
+            # Detect arch if needed
+            if arch is None:
+                arch = self.detect_architecture(assembly_path)
+
+            # Determine output path
+            if output_path is None:
+                output_path = assembly_path.with_suffix('')
+
+            # Find linker
+            linker = self.find_linker(arch)
+            if linker is None:
+                return AssembleResult(
+                    success=False,
+                    error=f"No linker found for architecture: {arch}",
+                )
+
+            # Link object file to executable
+            try:
+                link_result = subprocess.run(
+                    [linker, str(obj_path), "-o", str(output_path)],
+                    capture_output=True,
+                    text=True,
+                    timeout=60,
+                )
+
+                if link_result.returncode == 0:
+                    return AssembleResult(
+                        success=True,
+                        output_path=output_path,
+                    )
+                else:
+                    return AssembleResult(
+                        success=False,
+                        error=f"Linking failed: {link_result.stderr}",
+                    )
+
+            except subprocess.TimeoutExpired:
+                return AssembleResult(
+                    success=False,
+                    error="Linking timed out",
+                )
+            except Exception as e:
+                return AssembleResult(
+                    success=False,
+                    error=f"Linking error: {str(e)}",
+                )

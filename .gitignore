@@ -79,3 +79,4 @@ test_logs/
 .pytest_cache/
 .coverage
 htmlcov/
+tests/vendor/

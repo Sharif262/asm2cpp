@@ -142,6 +142,8 @@ Run `asm2cpp -h` for all options.
 
 **No API keys needed** - the skill uses your AI assistant's native capabilities.
 
+**Note:** AST-based feedback (`--mode ast`) requires Python < 3.12 due to tree-sitter-languages compatibility. Other feedback modes work with any Python 3.10+.
+
 ## How It Works
 
 1. **Decompile** - Ghidra extracts C from binary
@@ -150,6 +152,38 @@ Run `asm2cpp -h` for all options.
 4. **Refine** - LLM converts to clean C++17
 5. **Validate** - Compile and test
 6. **Fix** - If errors, LLM fixes and retries
+
+### Advanced: Compiler-Augmented Feedback (Trail of Bits)
+
+asm2cpp implements the compiler-augmented feedback loop from Trail of Bits' Codex-Decompiler:
+
+```
+Binary → Decompile → C++ → Compile → New Binary → Compare → Refine
+         ↑___________________________________________________|
+```
+
+**Feedback Modes:**
+- `compiler`: Fix compilation errors (default)
+- `objdump`: Compare disassembly, iterate until match
+- `ast`: Compare code structure (branches, function calls)
+- `multi`: Use all feedback types
+
+**Usage:**
+```bash
+# Basic validation with compiler feedback
+asm2cpp binary -v --feedback
+
+# Round-trip validation with binary comparison
+asm2cpp binary -v --feedback --mode objdump
+
+# AST-based structural matching
+asm2cpp binary -v --feedback --mode ast
+
+# Multi-mode (compiler + objdump + AST)
+asm2cpp binary -v --feedback --mode multi --max-iterations 10
+```
+
+This approach measures decompilation accuracy by compiling the result back to binary and comparing it with the original.
 
 ## Architecture Support
 
