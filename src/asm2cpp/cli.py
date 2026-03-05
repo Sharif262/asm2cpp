@@ -9,74 +9,82 @@ def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
         prog="asm2cpp",
-        description="Decompile assembly or binary files to C++",
+        description="Decompile binaries/assembly to clean C++",
+        epilog=(
+            "CLI usage: asm2cpp my_binary -v\n"
+            "LLM skill: /decompile my_binary (in Claude Code, Codex, or Gemini)\n"
+            "\n"
+            "The /decompile skill provides an interactive decompilation workflow\n"
+            "with automatic error fixing and validation feedback."
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
     parser.add_argument(
         "input",
         type=Path,
-        help="Input file (binary or assembly)",
+        help="Binary, assembly, or Ghidra .c file",
     )
 
     parser.add_argument(
         "-o", "--output",
         type=Path,
-        help="Output directory (default: ./output)",
+        help="Output directory",
+    )
+
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="Show detailed progress",
     )
 
     parser.add_argument(
         "-b", "--backend",
         choices=["auto", "ghidra", "retdec", "llm"],
         default="auto",
-        help="Decompilation backend (default: auto)",
+        help="Decompiler backend (auto-detected)",
     )
 
     parser.add_argument(
         "--no-refine",
         action="store_true",
-        help="Skip LLM refinement step",
+        help="Skip LLM cleanup/refinement",
     )
 
     parser.add_argument(
         "--no-validate",
         action="store_true",
-        help="Skip compilation validation",
+        help="Skip compile validation",
     )
 
     parser.add_argument(
         "--model",
         default="claude-sonnet-4-20250514",
-        help="LLM model for refinement (default: claude-sonnet-4-20250514)",
+        help=argparse.SUPPRESS,  # Hide from help - rarely changed
     )
 
     parser.add_argument(
         "--compiler",
         default="g++",
-        help="C++ compiler for validation (default: g++)",
+        help=argparse.SUPPRESS,  # Hide from help - rarely changed
     )
 
     parser.add_argument(
         "--std",
         default="c++17",
-        help="C++ standard (default: c++17)",
-    )
-
-    parser.add_argument(
-        "-v", "--verbose",
-        action="store_true",
-        help="Verbose output",
+        help=argparse.SUPPRESS,  # Hide from help - rarely changed
     )
 
     parser.add_argument(
         "--docker",
         action="store_true",
-        help="Use Docker for cross-compilation (needed for RISC-V on non-RISC-V hosts)",
+        help=argparse.SUPPRESS,  # Hide from help - advanced feature
     )
 
     parser.add_argument(
         "--list-backends",
         action="store_true",
-        help="List available decompilation backends and exit",
+        help="Show available decompilers",
     )
 
     args = parser.parse_args()
