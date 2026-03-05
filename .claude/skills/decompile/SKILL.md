@@ -64,7 +64,7 @@ The skill implements compiler-augmented feedback from Trail of Bits' Codex-Decom
 
 ```
 Binary → Decompile → C++ → Compile → New Binary → Compare → Refine
-         ↑___________________________________________________|
+                      ↑________________________________________|
 ```
 
 The skill can:
