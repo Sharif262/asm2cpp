@@ -22,7 +22,7 @@ In Claude Code / Codex / Gemini: open or clone this repo (or point the agent at 
 /skills list
 ```
 
-You should see `/decompile`. If not, ensure the agent has access to `.claude/skills/` (or `.agents/skills/`, `.gemini/skills/`).
+You should see `/decompile`. If not, ensure the agent has access to `.claude/skills/` or `.agents/skills/` (Codex and Gemini both use `.agents`).
 
 ### 4. Use it
 
@@ -47,7 +47,7 @@ No API keys required — the agent uses its own capabilities.
 |----------|------------|--------|
 | [Claude Code](https://claude.ai/code) | `.claude/skills/decompile/` | `/decompile <file>` |
 | [Codex CLI](https://openai.com/codex) | `.agents/skills/decompile/` | `/decompile <file>` |
-| [Gemini CLI](https://geminicli.com) | `.gemini/skills/decompile/` | `/decompile <file>` |
+| [Gemini CLI](https://geminicli.com) | `.agents/skills/decompile/` | `/decompile <file>` |
 
 ## CLI (optional)
 
@@ -87,8 +87,7 @@ uv pip install -e .   # or: pip install -e .
 ```
 asm2cpp/
 ├── .claude/skills/decompile/    # Claude Code skill
-├── .agents/skills/decompile/    # Codex skill
-├── .gemini/skills/decompile/    # Gemini skill
+├── .agents/skills/decompile/    # Codex & Gemini skill
 ├── src/asm2cpp/
 │   ├── cli.py                  # Entry point (asm2cpp)
 │   ├── pipeline.py             # Extract → parse → validate
