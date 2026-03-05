@@ -94,14 +94,34 @@ int main() {
 
 ## Options
 
-| Flag | Description |
-|------|-------------|
-| `-o, --output` | Output directory |
-| `-b, --backend` | `auto`, `ghidra`, `retdec`, `llm` |
-| `--no-refine` | Skip LLM refinement |
-| `--no-validate` | Skip compilation test |
-| `-v, --verbose` | Verbose output |
-| `--model` | LLM model (default: claude-sonnet) |
+Run `asm2cpp -h` to see all options:
+
+```
+usage: asm2cpp [-h] [-o OUTPUT] [-b {auto,ghidra,retdec,llm}] [--no-refine]
+               [--no-validate] [--model MODEL] [--compiler COMPILER]
+               [--std STD] [-v] [--docker] [--list-backends]
+               input
+
+Decompile assembly or binary files to C++
+
+positional arguments:
+  input                 Input file (binary or assembly)
+
+options:
+  -h, --help            show this help message and exit
+  -o, --output OUTPUT   Output directory (default: ./output)
+  -b, --backend {auto,ghidra,retdec,llm}
+                        Decompilation backend (default: auto)
+  --no-refine           Skip LLM refinement step
+  --no-validate         Skip compilation validation
+  --model MODEL         LLM model for refinement (default: claude-sonnet-4-20250514)
+  --compiler COMPILER   C++ compiler for validation (default: g++)
+  --std STD             C++ standard (default: c++17)
+  -v, --verbose         Verbose output
+  --docker              Use Docker for cross-compilation (needed for RISC-V on
+                        non-RISC-V hosts)
+  --list-backends       List available decompilation backends and exit
+```
 
 ## Requirements
 
@@ -110,7 +130,9 @@ int main() {
 | Python 3.10+ | Yes | `pip install asm2cpp` |
 | Ghidra | For binaries | `brew install ghidra` |
 | g++ | For validation | Usually pre-installed |
-| Anthropic API | For LLM | `export ANTHROPIC_API_KEY=...` |
+| Anthropic API | For LLM (Claude) | `export ANTHROPIC_API_KEY=...` |
+
+**LLM note:** asm2cpp uses **Claude** via Anthropic's API. It does not support Codex, OpenAI, or other providers.
 
 ## Without Ghidra
 
@@ -126,18 +148,24 @@ asm2cpp ghidra_output.c
 asm2cpp code.s -b llm
 ```
 
-## Claude Code Integration
+## AI Coding Assistant Integration
 
-If you have [Claude Code](https://claude.ai/code), use the `/decompile` skill:
+The `/decompile` skill works with multiple AI coding assistants. Open the asm2cpp project in your assistant:
+
+| Platform | Skill Location | Invoke |
+|----------|----------------|--------|
+| [Claude Code](https://claude.ai/code) | `.claude/skills/decompile/` | `/decompile my_binary` |
+| [Codex CLI](https://openai.com/codex) | `.agents/skills/decompile/` | `/decompile my_binary` |
+| [Gemini CLI](https://geminicli.com) | `.gemini/skills/decompile/` | `/decompile my_binary` |
+
+Each assistant reads its skill from the project and runs the same decompile workflow (Ghidra → parse → refine → compile → fix).
 
 ```bash
 cd asm2cpp
-claude
-
-> /decompile my_binary
+# Then invoke: /decompile my_binary
 ```
 
-Claude handles everything with a feedback loop - compiles, fixes errors, retries.
+The assistant handles the full feedback loop: compiles, fixes errors, retries.
 
 ## Python API
 
