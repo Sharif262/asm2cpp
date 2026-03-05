@@ -231,8 +231,11 @@ class StubGenerator:
         for gtype in ghidra_types:
             if re.search(rf'\b{gtype}\b', code):
                 if gtype.startswith("undefined"):
-                    size = gtype[9:] if len(gtype) > 9 else "8"
-                    declarations.append(f"using {gtype} = uint{size}_t;")
+                    # Map undefined sizes to actual byte sizes
+                    size_map = {"1": "8", "2": "16", "4": "32", "8": "64"}
+                    size = gtype[9:] if len(gtype) > 9 else ""
+                    actual_size = size_map.get(size, "8")  # Default to 8
+                    declarations.append(f"using {gtype} = uint{actual_size}_t;")
                 elif gtype in ("byte",):
                     declarations.append(f"using {gtype} = uint8_t;")
                 elif gtype in ("ushort", "word"):

@@ -10,7 +10,7 @@ from .decompilers.ghidra import GhidraDecompiler
 from .decompilers.retdec import RetDecDecompiler
 from .decompilers.assembly import AssemblyDecompiler
 from .assembler import Assembler, AssembleResult
-from .refinement.refiner import CodeRefiner, RefinementResult
+from .refinement.local_refiner import LocalCodeRefiner, LocalRefinementResult
 from .validation.harness import ValidationHarness, ValidationResult
 from .config import Config
 
@@ -28,8 +28,8 @@ class DecompilationPipeline:
     decompile_result: Optional[DecompileResult] = None
     """Initial decompilation result."""
 
-    refinement_result: Optional[RefinementResult] = None
-    """LLM refinement result."""
+    refinement_result: Optional[LocalRefinementResult] = None
+    """Local refinement result (rule-based, no API required)."""
 
     validation_result: Optional[ValidationResult] = None
     """Compilation and test validation result."""
@@ -84,7 +84,7 @@ class Decompiler:
         self._assembler: Optional[Assembler] = None
 
         # Initialize refinement and validation
-        self._refiner: Optional[CodeRefiner] = None
+        self._refiner: Optional[LocalCodeRefiner] = None
         self._harness: Optional[ValidationHarness] = None
 
     @property
@@ -109,12 +109,10 @@ class Decompiler:
         return self._assembly
 
     @property
-    def refiner(self) -> CodeRefiner:
+    def refiner(self) -> LocalCodeRefiner:
         if self._refiner is None:
-            self._refiner = CodeRefiner(
-                model=self.config.llm_model,
+            self._refiner = LocalCodeRefiner(
                 max_attempts=self.config.max_refinement_attempts,
-                api_key=self.config.anthropic_api_key,
             )
         return self._refiner
 
@@ -399,20 +397,20 @@ class Decompiler:
         code: str,
         context: str = "",
         validate: bool = False,
-    ) -> RefinementResult:
+    ) -> LocalRefinementResult:
         """
-        Refine decompiled code using LLM.
+        Refine decompiled code using local rule-based transformations.
 
         Args:
             code: The decompiled code to refine.
-            context: Additional context for the LLM.
+            context: Additional context (unused in local refinement).
             validate: Whether to use compiler validation during refinement.
 
         Returns:
-            RefinementResult with the refined code.
+            LocalRefinementResult with the refined code.
         """
         compiler_check = self.harness.compile_check if validate else None
-        return self.refiner.refine(code, context=context, compiler_check=compiler_check)
+        return self.refiner.refine(code, compiler_check=compiler_check)
 
     def validate(self, code: str) -> ValidationResult:
         """
