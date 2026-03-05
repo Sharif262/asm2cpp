@@ -134,7 +134,7 @@ asm2cpp/
 ├── scripts/
 │   └── build_dataset.py # Ghidra headless runner
 ├── .claude/skills/
-│   └── decompile.md     # Claude Code skill
+│   └── decompile/       # Claude Code skill
 └── ghidra_dataset/      # Decompiled outputs (generated)
 ```
 

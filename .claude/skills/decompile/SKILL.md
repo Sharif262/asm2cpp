@@ -1,3 +1,8 @@
+---
+name: decompile
+description: Automatically decompile a binary or assembly file to clean C++ code. Use when you need to convert binaries, assembly files, or Ghidra output to readable C++.
+---
+
 # /decompile
 
 Automatically decompile a binary or assembly file to clean C++ code.
