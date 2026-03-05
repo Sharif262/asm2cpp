@@ -34,24 +34,46 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Project specific - large files
+# Project specific - generated output
 ghidra_projects/
+ghidra_output/
+ghidra_dataset/
+retdec_output/
+splitter_output/
+assembly_output/
+output/
 *.gpr
 *.rep/
 
-# Binaries (keep structure but ignore large files)
-binaries/**/*.o
+# Large external dependencies (use package managers instead)
+benchmarks/
+binaries/
+include/
+source/
+tests/inja/
+tests/tomlplusplus/
+
+# Build/install artifacts
+install-test-dir/
+
+# Binaries
+*.o
 *.elf
 *.exe
-
-# Keep decompiled output for analysis
-# ghidra_output/
-# retdec_output/
+test_decompile
 
 # Temporary files
 *.tmp
 *.temp
 /tmp/
+filename_*
+global-path-result.txt
+*_decompiled.cpp
+
+# Logs
+logs/
+log_tests/
+test_logs/
 
 # Test artifacts
 .pytest_cache/
