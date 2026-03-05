@@ -4,11 +4,23 @@ Assembly/Binary to C++ Decompiler using Ghidra + LLM refinement.
 
 ## Install
 
+**One-command setup** (recommended) — installs `uv`, fetches the project, sets up Python:
+
 ```bash
-pip install asm2cpp
+# Project-local (clone to ~/work/asm2cpp, binaries in .asm2cpp/bin)
+curl -LsSf https://raw.githubusercontent.com/Sharif262/asm2cpp/main/scripts/install.sh | sh -s -- ~/work/asm2cpp
+
+# Global cache (~/.cache/asm2cpp)
+curl -LsSf https://raw.githubusercontent.com/Sharif262/asm2cpp/main/scripts/install.sh | sh
 ```
 
-That's it. One command.
+The script prints the `PATH` line to add to `~/.bashrc` or `~/.zshrc`.
+
+**Or** from a local clone:
+
+```bash
+pip install -e .   # or: uv pip install -e .
+```
 
 ## Usage
 

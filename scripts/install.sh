@@ -1,127 +1,154 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# asm2cpp installer
-# Usage: curl -LsSf https://raw.githubusercontent.com/masc-ucsc/asm2cpp/main/scripts/install.sh | sh
+# asm2cpp one-command installer
+#
+# Usage:
+#   curl -LsSf https://raw.githubusercontent.com/Sharif262/asm2cpp/main/scripts/install.sh | sh -s -- [install_dir]
+#
+# With install_dir (project-local):
+#   ... | sh -s -- ~/work/asm2cpp
+#   → Clones to ~/work/asm2cpp, binaries in ~/work/asm2cpp/.asm2cpp/bin
+#
+# Without args (global cache):
+#   ... | sh
+#   → Installs to ~/.cache/asm2cpp, binaries in ~/.cache/asm2cpp/bin
 
 PROJECT="asm2cpp"
 REPO="https://github.com/Sharif262/asm2cpp.git"
-INSTALL_DIR="${ASM2CPP_DIR:-$HOME/.asm2cpp}"
-BIN_DIR="$INSTALL_DIR/bin"
 
-echo "=== asm2cpp Installer ==="
+# Parse args: [install_dir]
+# Project mode: install_dir = ~/work/asm2cpp → clone there, bin/venv in .asm2cpp/
+# Global mode: no arg → ~/.cache/asm2cpp with repo/venv/bin
+INSTALL_ARG="${1:-}"
+if [ -n "$INSTALL_ARG" ]; then
+    INSTALL_DIR="${INSTALL_ARG/#\~/$HOME}"
+    REPO_DIR="$INSTALL_DIR"
+    BASE_DIR="$INSTALL_DIR/.asm2cpp"
+    BIN_DIR="$BASE_DIR/bin"
+    VENV_DIR="$BASE_DIR/venv"
+    MODE="project"
+else
+    INSTALL_DIR="${ASM2CPP_DIR:-$HOME/.cache/asm2cpp}"
+    REPO_DIR="$INSTALL_DIR/repo"
+    BASE_DIR="$INSTALL_DIR"
+    BIN_DIR="$BASE_DIR/bin"
+    VENV_DIR="$BASE_DIR/venv"
+    MODE="global"
+fi
+
+echo "=== $PROJECT Installer ==="
 echo ""
 
-# Check for required tools
-check_dependency() {
-    if ! command -v "$1" &> /dev/null; then
-        echo "Error: $1 is required but not installed."
-        exit 1
-    fi
+# Ensure uv is on PATH after install
+expand_path() {
+    echo "${1/#\~/$HOME}"
 }
-
-check_dependency git
-check_dependency python3
+UV_BIN="$(expand_path "$HOME/.local/bin/uv")"
+CARGO_BIN="$(expand_path "$HOME/.cargo/bin")"
+LOCAL_BIN="$(expand_path "$HOME/.local/bin")"
 
 # Install uv if not present
 if ! command -v uv &> /dev/null; then
     echo "Installing uv (Python package manager)..."
     curl -LsSf https://astral.sh/uv/install.sh | sh
-    export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+    export PATH="$LOCAL_BIN:$CARGO_BIN:$PATH"
+    # Ensure we can find uv (may be in different locations)
+    for p in "$LOCAL_BIN" "$CARGO_BIN" "$HOME/.cargo/bin" "$HOME/.local/bin"; do
+        [ -x "$p/uv" ] && export PATH="$p:$PATH" && break
+    done
 fi
 
-# Create directories
-mkdir -p "$INSTALL_DIR"
-mkdir -p "$BIN_DIR"
+# Verify uv is available
+if ! command -v uv &> /dev/null; then
+    echo "Error: uv install failed. Add to PATH: export PATH=\"\$HOME/.local/bin:\$HOME/.cargo/bin:\$PATH\""
+    exit 1
+fi
 
-# Clone or update repo
-if [ -d "$INSTALL_DIR/repo/.git" ]; then
-    echo "Updating existing installation..."
-    cd "$INSTALL_DIR/repo"
-    git pull --quiet
+# Git is required for fetching
+if ! command -v git &> /dev/null; then
+    echo "Error: git is required. Install git first."
+    exit 1
+fi
+
+# Clone or update repo (create parent dir only; clone creates REPO_DIR)
+mkdir -p "$(dirname "$REPO_DIR")"
+
+if [ "$MODE" = "project" ]; then
+    if [ -d "$REPO_DIR/.git" ]; then
+        echo "Updating existing installation..."
+        cd "$REPO_DIR"
+        git pull --quiet
+    else
+        echo "Cloning $PROJECT to $REPO_DIR..."
+        git clone --quiet --depth 1 "$REPO" "$REPO_DIR"
+        cd "$REPO_DIR"
+    fi
 else
-    echo "Downloading $PROJECT..."
-    rm -rf "$INSTALL_DIR/repo"
-    git clone --quiet --depth 1 "$REPO" "$INSTALL_DIR/repo"
+    if [ -d "$REPO_DIR/.git" ]; then
+        echo "Updating existing installation..."
+        cd "$REPO_DIR"
+        git pull --quiet
+    else
+        echo "Cloning $PROJECT..."
+        mkdir -p "$(dirname "$REPO_DIR")"
+        rm -rf "$REPO_DIR"
+        git clone --quiet --depth 1 "$REPO" "$REPO_DIR"
+        cd "$REPO_DIR"
+    fi
 fi
 
-cd "$INSTALL_DIR/repo"
-
-# Setup Python environment
+# Setup Python environment (no global Python install; uv manages it)
 echo "Setting up Python environment..."
-uv venv "$INSTALL_DIR/venv" --quiet 2>/dev/null || uv venv "$INSTALL_DIR/venv"
-source "$INSTALL_DIR/venv/bin/activate"
-uv pip install -e . --quiet 2>/dev/null || uv pip install -e .
+VENV_DIR="$INSTALL_DIR/venv"
+uv venv "$VENV_DIR" 2>/dev/null || true
+# shellcheck source=/dev/null
+source "$VENV_DIR/bin/activate"
+
+# Install with uv for speed; use lock file if present for reproducibility
+if [ -f "uv.lock" ]; then
+    uv sync 2>/dev/null || uv pip install -e .
+else
+    uv pip install -e .
+fi
+
+# Ensure bin dir exists
+mkdir -p "$BIN_DIR"
 
 # Create main CLI wrapper
 cat > "$BIN_DIR/asm2cpp" << WRAPPER
 #!/usr/bin/env bash
-source "$INSTALL_DIR/venv/bin/activate"
-python -m asm2cpp "\$@"
+set -euo pipefail
+source "$VENV_DIR/bin/activate"
+exec asm2cpp "\$@"
 WRAPPER
 chmod +x "$BIN_DIR/asm2cpp"
 
-# Create decompile wrapper (runs full pipeline)
+# Create decompile wrapper (alias for asm2cpp with common use case)
 cat > "$BIN_DIR/decompile" << WRAPPER
 #!/usr/bin/env bash
-source "$INSTALL_DIR/venv/bin/activate"
-cd "$INSTALL_DIR/repo"
-python -c "
-from src.asm2cpp.validator import validate_decompilation
-from src.asm2cpp.splitter import GhidraSplitter
-from pathlib import Path
-import sys
-
-if len(sys.argv) < 2:
-    print('Usage: decompile <ghidra_output.c> [--feedback]')
-    sys.exit(1)
-
-input_file = sys.argv[1]
-use_feedback = '--feedback' in sys.argv or '-f' in sys.argv
-
-print(f'Decompiling {input_file}...')
-
-# For now, just validate if it's already C++
-if input_file.endswith('.cpp'):
-    result = validate_decompilation(input_file, use_feedback_loop=use_feedback)
-    print(f'Compiles: {result.compiles}')
-    print(f'Runs: {result.runs}')
-    if result.actual_output:
-        print(f'Output: {result.actual_output}')
-else:
-    print('Processing Ghidra output...')
-    splitter = GhidraSplitter.from_file(input_file)
-    functions = splitter.parse()
-    print(f'Found {len(functions)} functions')
-    for f in functions[:5]:
-        print(f'  - {f.name}')
-" "\$@"
+set -euo pipefail
+source "$VENV_DIR/bin/activate"
+exec asm2cpp "\$@"
 WRAPPER
 chmod +x "$BIN_DIR/decompile"
-
-# Create validate wrapper
-cat > "$BIN_DIR/asm2cpp-validate" << WRAPPER
-#!/usr/bin/env bash
-source "$INSTALL_DIR/venv/bin/activate"
-python "$INSTALL_DIR/repo/src/asm2cpp/validator.py" "\$@"
-WRAPPER
-chmod +x "$BIN_DIR/asm2cpp-validate"
 
 echo ""
 echo "=== Installation Complete ==="
 echo ""
 echo "Installed to: $INSTALL_DIR"
+echo "Binaries:     $BIN_DIR"
 echo ""
-echo "Add this to your shell config (~/.bashrc or ~/.zshrc):"
+echo "Add this line to your shell config (~/.bashrc, ~/.zshrc, etc.):"
 echo ""
 echo "    export PATH=\"$BIN_DIR:\$PATH\""
 echo ""
-echo "Then restart your shell or run:"
+echo "Then run:"
+echo "    source ~/.bashrc   # or ~/.zshrc"
 echo ""
-echo "    source ~/.bashrc"
-echo ""
-echo "Commands available:"
-echo "    asm2cpp           - Main CLI"
-echo "    decompile         - Decompile Ghidra output"
-echo "    asm2cpp-validate  - Validate generated C++"
+echo "Usage:"
+echo "    cd $REPO_DIR"
+echo "    asm2cpp --help"
+echo "    asm2cpp my_binary    # decompile binary"
+echo "    asm2cpp code.s       # decompile assembly"
 echo ""
