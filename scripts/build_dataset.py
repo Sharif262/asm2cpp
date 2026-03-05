@@ -57,41 +57,120 @@ def assemble(assembly_path: Path, output_path: Path, arch: str) -> bool:
     return False
 
 
-def run_ghidra(binary_path: Path, output_dir: Path, scripts_dir: Path) -> Path:
+def run_ghidra(binary_path: Path, output_dir: Path) -> Path:
     """Run Ghidra headless decompilation."""
     output_dir.mkdir(parents=True, exist_ok=True)
     output_file = output_dir / f"{binary_path.stem}_decompiled.c"
 
     # Find analyzeHeadless
-    ghidra_paths = [
-        "/opt/homebrew/opt/ghidra/libexec/support/analyzeHeadless",
-        "/usr/share/ghidra/support/analyzeHeadless",
-        "/opt/ghidra/support/analyzeHeadless",
-    ]
-
     analyze_headless = None
-    for p in ghidra_paths:
-        if Path(p).exists():
-            analyze_headless = p
-            break
+
+    # Try which first
+    try:
+        result = subprocess.run(
+            ["which", "analyzeHeadless"],
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            analyze_headless = result.stdout.strip()
+    except:
+        pass
+
+    # Try common paths
+    if not analyze_headless:
+        ghidra_paths = [
+            "/opt/homebrew/opt/ghidra/libexec/support/analyzeHeadless",
+            "/opt/homebrew/bin/analyzeHeadless",
+            "/usr/share/ghidra/support/analyzeHeadless",
+            "/opt/ghidra/support/analyzeHeadless",
+        ]
+        for p in ghidra_paths:
+            if Path(p).exists():
+                analyze_headless = p
+                break
+
+    # Search Cellar as fallback
+    if not analyze_headless:
+        cellar = Path("/opt/homebrew/Cellar/ghidra")
+        if cellar.exists():
+            for script in cellar.rglob("analyzeHeadless"):
+                if script.is_file():
+                    analyze_headless = str(script)
+                    break
 
     if not analyze_headless:
         print(f"  ERROR: analyzeHeadless not found")
         return None
 
+    # Embedded Ghidra script (works from anywhere)
+    GHIDRA_SCRIPT = '''// Ghidra script to export decompiled code
+// @category Export
+
+import ghidra.app.decompiler.DecompInterface;
+import ghidra.app.decompiler.DecompileResults;
+import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.FunctionIterator;
+import java.io.FileWriter;
+import java.io.PrintWriter;
+
+public class ExportDecompiled extends ghidra.app.script.GhidraScript {
+    @Override
+    public void run() throws Exception {
+        DecompInterface decompiler = new DecompInterface();
+        decompiler.openProgram(currentProgram);
+
+        String outputFile = System.getenv("GHIDRA_OUTPUT_FILE");
+        if (outputFile == null) {
+            outputFile = "/tmp/decompiled.c";
+        }
+
+        PrintWriter writer = new PrintWriter(new FileWriter(outputFile));
+        writer.println("// Decompiled by Ghidra");
+        writer.println("// Binary: " + currentProgram.getExecutablePath());
+        writer.println();
+
+        FunctionIterator functions = currentProgram.getFunctionManager().getFunctions(true);
+
+        while (functions.hasNext() && !monitor.isCancelled()) {
+            Function func = functions.next();
+            if (func.isExternal()) continue;
+
+            DecompileResults results = decompiler.decompileFunction(func, 60, monitor);
+
+            if (results != null && results.decompileCompleted()) {
+                if (results.getDecompiledFunction() != null) {
+                    writer.println("// Function: " + func.getName() + " at " + func.getEntryPoint());
+                    writer.println(results.getDecompiledFunction().getC());
+                    writer.println();
+                }
+            }
+        }
+
+        writer.close();
+        decompiler.dispose();
+    }
+}
+'''
+
     # Run Ghidra
     import tempfile
     with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+
+        # Write embedded script to temp file
+        script_path = tmpdir_path / "ExportDecompiled.java"
+        script_path.write_text(GHIDRA_SCRIPT)
+
         cmd = [
             analyze_headless,
-            tmpdir, "TempProject",
+            str(tmpdir_path / "project"), "TempProject",
             "-import", str(binary_path),
-            "-postScript", "export_decompiled.java",
-            "-scriptPath", str(scripts_dir),
+            "-postScript", str(script_path),
             "-deleteProject",
         ]
 
-        env = {"GHIDRA_OUTPUT_DIR": str(output_dir)}
+        env = {"GHIDRA_OUTPUT_FILE": str(output_file)}
         env.update(dict(__import__('os').environ))
 
         result = subprocess.run(
@@ -104,32 +183,18 @@ def run_ghidra(binary_path: Path, output_dir: Path, scripts_dir: Path) -> Path:
 
         if result.returncode != 0:
             print(f"  ERROR: Ghidra failed")
+            if result.stderr:
+                print(f"  {result.stderr[:200]}")
             return None
 
-    # Check for output - try different naming patterns
-    possible_outputs = [
-        output_file,
-        output_dir / f"{binary_path.name}_decompiled.c",  # includes extension
-        Path("/tmp/ghidra_output") / f"{binary_path.stem}_decompiled.c",
-        Path("/tmp/ghidra_output") / f"{binary_path.name}_decompiled.c",
-    ]
-
-    for possible in possible_outputs:
-        if possible.exists():
-            if possible != output_file:
-                # Move to expected location
-                possible.rename(output_file)
-            return output_file
-
-    # Check if any decompiled file exists in output dir
-    decompiled_files = list(output_dir.glob("*_decompiled.c"))
-    if decompiled_files:
-        return decompiled_files[0]
+    # Check if output file was created
+    if output_file.exists():
+        return output_file
 
     return None
 
 
-def process_file(input_path: Path, output_dir: Path, scripts_dir: Path) -> dict:
+def process_file(input_path: Path, output_dir: Path) -> dict:
     """Process a single file and return metadata."""
     result = {
         "input": str(input_path),
@@ -172,7 +237,7 @@ def process_file(input_path: Path, output_dir: Path, scripts_dir: Path) -> dict:
 
     # Run Ghidra
     print(f"  Running Ghidra...")
-    output_path = run_ghidra(binary_path, output_dir, scripts_dir)
+    output_path = run_ghidra(binary_path, output_dir)
 
     if output_path and output_path.exists():
         result["output"] = str(output_path)
@@ -203,12 +268,6 @@ def main():
         type=Path,
         default=Path("./ghidra_dataset"),
         help="Output directory",
-    )
-    parser.add_argument(
-        "--scripts",
-        type=Path,
-        default=Path(__file__).parent,
-        help="Path to Ghidra scripts directory",
     )
 
     args = parser.parse_args()
@@ -243,7 +302,7 @@ def main():
         print(f"[{i}/{len(input_files)}] {input_file.name}")
 
         file_output_dir = args.output / input_file.stem
-        result = process_file(input_file, file_output_dir, args.scripts)
+        result = process_file(input_file, file_output_dir)
         results.append(result)
 
         status = "✓" if result["success"] else "✗"
