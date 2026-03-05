@@ -12,7 +12,10 @@ from .base import BaseDecompiler, DecompileResult
 class GhidraDecompiler(BaseDecompiler):
     """Integration with Ghidra decompiler."""
 
-    GHIDRA_SCRIPT = '''
+    @staticmethod
+    def _generate_ghidra_script(output_file: Path) -> str:
+        """Generate Ghidra script with hardcoded output path."""
+        return f'''
 // Ghidra script to export decompiled code
 // @category Export
 
@@ -24,16 +27,13 @@ import ghidra.program.model.listing.FunctionIterator;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 
-public class ExportDecompiled extends ghidra.app.script.GhidraScript {
+public class ExportDecompiled extends ghidra.app.script.GhidraScript {{
     @Override
-    public void run() throws Exception {
+    public void run() throws Exception {{
         DecompInterface decompiler = new DecompInterface();
         decompiler.openProgram(currentProgram);
 
-        String outputFile = System.getenv("GHIDRA_OUTPUT_FILE");
-        if (outputFile == null) {
-            outputFile = "/tmp/decompiled.c";
-        }
+        String outputFile = "{output_file}";
 
         PrintWriter writer = new PrintWriter(new FileWriter(outputFile));
         writer.println("// Decompiled by Ghidra");
@@ -42,25 +42,25 @@ public class ExportDecompiled extends ghidra.app.script.GhidraScript {
 
         FunctionIterator functions = currentProgram.getFunctionManager().getFunctions(true);
 
-        while (functions.hasNext() && !monitor.isCancelled()) {
+        while (functions.hasNext() && !monitor.isCancelled()) {{
             Function func = functions.next();
             if (func.isExternal()) continue;
 
             DecompileResults results = decompiler.decompileFunction(func, 60, monitor);
 
-            if (results != null && results.decompileCompleted()) {
-                if (results.getDecompiledFunction() != null) {
+            if (results != null && results.decompileCompleted()) {{
+                if (results.getDecompiledFunction() != null) {{
                     writer.println("// Function: " + func.getName() + " at " + func.getEntryPoint());
                     writer.println(results.getDecompiledFunction().getC());
                     writer.println();
-                }
-            }
-        }
+                }}
+            }}
+        }}
 
         writer.close();
         decompiler.dispose();
-    }
-}
+    }}
+}}
 '''
 
     def __init__(self, executable_path: Optional[Path] = None):
@@ -99,22 +99,18 @@ public class ExportDecompiled extends ghidra.app.script.GhidraScript {
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
             script_path = tmpdir / "ExportDecompiled.java"
-            script_path.write_text(self.GHIDRA_SCRIPT)
+            script_path.write_text(self._generate_ghidra_script(output_file))
 
             project_dir = tmpdir / "project"
             project_dir.mkdir()
-
-            env = {
-                "GHIDRA_OUTPUT_FILE": str(output_file),
-                "PATH": subprocess.os.environ.get("PATH", ""),
-            }
 
             cmd = [
                 str(analyze_headless),
                 str(project_dir),
                 "TempProject",
                 "-import", str(binary_path),
-                "-postScript", str(script_path),
+                "-scriptPath", str(tmpdir),
+                "-postScript", script_path.name,
                 "-deleteProject",
             ]
 
@@ -124,7 +120,6 @@ public class ExportDecompiled extends ghidra.app.script.GhidraScript {
                     capture_output=True,
                     text=True,
                     timeout=300,
-                    env=env,
                 )
 
                 if output_file.exists():
