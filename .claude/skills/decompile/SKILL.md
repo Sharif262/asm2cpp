@@ -28,10 +28,20 @@ Claude automatically:
 2. Runs Ghidra to decompile (if needed)
 3. Runs the optimizer to filter functions
 4. Processes each batch to generate clean C++
-5. Combines into a single output file
-6. Returns the result
+5. Validates and fixes with feedback loop (optional)
+6. Compares to original binary using objdump diff (optional)
+7. Returns the result
 
 No user intervention needed after the initial command.
+
+## Options
+
+| Flag | Description |
+|------|-------------|
+| `--validate` | Compile and test the generated C++ |
+| `--feedback` | Enable LLM feedback loop to fix compile errors |
+| `--compare` | Compare generated binary to original using objdump |
+| `--function <name>` | Target specific function for comparison |
 
 ## Instructions for Claude
 
@@ -120,10 +130,34 @@ output_file = ghidra_file.with_suffix('.cpp')
 output_file.write_text("\n".join(cpp_output))
 ```
 
-### Step 6: Show Result
+### Step 6: Validate (Optional)
+
+If `--validate` or `--feedback` is specified:
+
+```python
+from src.asm2cpp.validator import validate_decompilation
+
+result = validate_decompilation(
+    str(output_file),
+    original_binary=str(input_file) if input_type == "binary" else None,
+    use_feedback_loop=True,  # If --feedback
+    auto_stub=True,          # Auto-generate stubs for missing deps
+    compare_binary=True,     # If --compare
+    target_function=None     # If --function specified
+)
+
+print(f"Compiles: {result.compiles}")
+print(f"Runs: {result.runs}")
+print(f"Iterations: {result.iterations}")
+if result.binary_similarity > 0:
+    print(f"Binary similarity: {result.binary_similarity:.1%}")
+```
+
+### Step 7: Show Result
 
 Display:
 - Summary of what was processed
+- Validation results (if enabled)
 - First ~50 lines of the generated C++ file
 - Full path to output file
 

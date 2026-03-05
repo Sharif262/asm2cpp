@@ -1,19 +1,31 @@
 """Validate generated C++ by compiling and comparing output.
 
-Includes feedback loop to fix compile errors using LLM.
+Combines:
+- Compilation feedback loop (LLM fixes errors iteratively)
+- Auto-stub generation for missing dependencies
+- Binary comparison using objdump diff (Trail of Bits approach)
 """
 
 import subprocess
 import tempfile
+import difflib
+import re
 from pathlib import Path
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Optional, List, Dict
 
 try:
     import anthropic
     HAS_ANTHROPIC = True
 except ImportError:
     HAS_ANTHROPIC = False
+
+# Import stub generator
+try:
+    from .stub_generator import StubGenerator, LibraryDetector, generate_stubs_for_file
+    HAS_STUB_GEN = True
+except ImportError:
+    HAS_STUB_GEN = False
 
 
 @dataclass
@@ -28,6 +40,11 @@ class ValidationResult:
     actual_output: Optional[str] = None
     iterations: int = 1
     history: list = field(default_factory=list)
+    # New fields for enhanced validation
+    objdump_diff: Optional[str] = None
+    binary_similarity: float = 0.0
+    detected_libraries: Dict = field(default_factory=dict)
+    generated_stubs: Optional[str] = None
 
 
 class CppValidator:
@@ -119,15 +136,96 @@ class CppValidator:
         return result
 
 
+class BinaryComparator:
+    """
+    Compare binaries using objdump diff.
+
+    Trail of Bits approach: compile decompiled code, then compare
+    disassembly to original binary to measure accuracy.
+    """
+
+    def __init__(self, func_name: str = None):
+        self.func_name = func_name
+
+    def get_objdump(self, binary_path: Path, func_name: str = None) -> str:
+        """Get objdump output for a binary, optionally for a specific function."""
+        cmd = ["objdump", "-d", "-C", "--no-show-raw-insn", "--no-addresses", str(binary_path)]
+
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        if result.returncode != 0:
+            return ""
+
+        output = result.stdout
+
+        # If function name specified, extract just that function
+        if func_name or self.func_name:
+            target = func_name or self.func_name
+            pattern = re.compile(rf"<{re.escape(target)}[^>]*>:\n((?:[^\n]+\n)*?)(?=\n<|\Z)", re.MULTILINE)
+            match = pattern.search(output)
+            if match:
+                return match.group(0)
+
+        return output
+
+    def compare(self, original_binary: Path, generated_binary: Path, func_name: str = None) -> tuple:
+        """
+        Compare two binaries using objdump diff.
+
+        Returns:
+            (similarity_score, diff_output)
+            similarity_score: 0.0 to 1.0 (1.0 = identical)
+        """
+        orig_dump = self.get_objdump(original_binary, func_name)
+        gen_dump = self.get_objdump(generated_binary, func_name)
+
+        if not orig_dump or not gen_dump:
+            return 0.0, "Could not get objdump output"
+
+        # Normalize: remove addresses and offsets
+        orig_lines = self._normalize(orig_dump).splitlines()
+        gen_lines = self._normalize(gen_dump).splitlines()
+
+        # Calculate similarity
+        matcher = difflib.SequenceMatcher(None, orig_lines, gen_lines)
+        similarity = matcher.ratio()
+
+        # Generate diff
+        diff = list(difflib.unified_diff(
+            orig_lines, gen_lines,
+            fromfile="original",
+            tofile="generated",
+            lineterm=""
+        ))
+
+        return similarity, "\n".join(diff[:100])  # Limit diff output
+
+    def _normalize(self, dump: str) -> str:
+        """Normalize objdump output for comparison."""
+        # Remove memory addresses and offsets
+        normalized = re.sub(r'0x[0-9a-f]+', '<addr>', dump)
+        normalized = re.sub(r'\$0x[0-9a-f]+', '$<imm>', normalized)
+        normalized = re.sub(r'-?[0-9]+\(%', '<off>(%', normalized)
+        return normalized
+
+
 class IterativeValidator:
     """
     Feedback loop validator - fixes compile errors using LLM.
 
-    Similar to Trail of Bits' Codex Decompiler approach:
-    1. Try to compile
-    2. If fails, send errors to LLM
-    3. LLM fixes the code
-    4. Repeat until success or max iterations
+    Enhanced version combining:
+    - Trail of Bits' iterative feedback approach
+    - Auto-stub generation for missing dependencies
+    - Binary comparison using objdump diff
+
+    Workflow:
+    1. Analyze code for library dependencies
+    2. Generate stubs if needed
+    3. Try to compile
+    4. If fails, send errors to LLM with stub context
+    5. LLM fixes the code
+    6. Repeat until success or max iterations
+    7. Compare generated binary to original using objdump
     """
 
     def __init__(
@@ -135,21 +233,63 @@ class IterativeValidator:
         compiler: str = "g++",
         flags: list = None,
         max_iterations: int = 5,
-        model: str = "claude-sonnet-4-20250514"
+        model: str = "claude-sonnet-4-20250514",
+        auto_stub: bool = True,
+        compare_binary: bool = False,
+        target_function: str = None
     ):
         self.cpp_validator = CppValidator(compiler, flags)
         self.max_iterations = max_iterations
         self.model = model
+        self.auto_stub = auto_stub and HAS_STUB_GEN
+        self.compare_binary = compare_binary
+        self.target_function = target_function
 
         if HAS_ANTHROPIC:
             self.client = anthropic.Anthropic()
         else:
             self.client = None
 
-    def _fix_with_llm(self, code: str, errors: str, iteration: int) -> str:
+        if self.auto_stub:
+            self.stub_generator = StubGenerator()
+            self.library_detector = LibraryDetector()
+        else:
+            self.stub_generator = None
+            self.library_detector = None
+
+        if self.compare_binary:
+            self.binary_comparator = BinaryComparator(target_function)
+        else:
+            self.binary_comparator = None
+
+    def _analyze_dependencies(self, code: str) -> tuple:
+        """Analyze code for dependencies and generate stubs."""
+        if not self.auto_stub:
+            return "", {}
+
+        # Detect libraries
+        detected = self.library_detector.detect(code)
+
+        # Generate stub info
+        info = self.stub_generator.analyze_code(code)
+        stub_header = self.stub_generator.generate_stub_header(info)
+
+        return stub_header, detected
+
+    def _fix_with_llm(self, code: str, errors: str, iteration: int, stubs: str = "") -> str:
         """Send compile errors to LLM and get fixed code."""
         if not self.client:
             raise RuntimeError("anthropic package required for feedback loop")
+
+        stub_section = ""
+        if stubs:
+            stub_section = f"""
+## Available Stubs
+You can use these type definitions and headers:
+```cpp
+{stubs}
+```
+"""
 
         prompt = f"""Fix the following C++ code that has compile errors.
 
@@ -162,13 +302,15 @@ class IterativeValidator:
 ```
 {errors}
 ```
-
+{stub_section}
 ## Instructions
 1. Fix ALL compile errors
 2. Keep the same logic and functionality
 3. Return ONLY the fixed C++ code, no explanations
 4. Include all necessary headers
 5. Make sure all types are properly defined
+6. If external libraries are missing, stub them out or remove the dependency
+7. For Ghidra types (undefined, byte, etc.), use stdint.h equivalents
 
 ## Fixed Code
 ```cpp
@@ -202,10 +344,17 @@ class IterativeValidator:
         """
         Validate C++ with iterative feedback loop.
 
-        If compilation fails, uses LLM to fix errors and retries.
+        Enhanced workflow:
+        1. Analyze code for dependencies
+        2. Generate stubs for missing types
+        3. Try to compile with LLM feedback loop
+        4. Compare generated binary to original (if enabled)
         """
         current_code = cpp_path.read_text()
         history = []
+
+        # Step 1: Analyze dependencies and generate stubs
+        stubs, detected_libraries = self._analyze_dependencies(current_code)
 
         for iteration in range(1, self.max_iterations + 1):
             # Write current code to temp file
@@ -222,11 +371,27 @@ class IterativeValidator:
                 )
                 result.iterations = iteration
                 result.history = history
+                result.detected_libraries = detected_libraries
+                result.generated_stubs = stubs
 
                 if result.compiles:
                     # Success - update original file with fixed code
                     if iteration > 1:
                         cpp_path.write_text(current_code)
+
+                    # Step 4: Compare binaries if enabled and we have original
+                    if self.compare_binary and original_binary and result.runs:
+                        # Compile to get our binary for comparison
+                        with tempfile.TemporaryDirectory() as tmpdir:
+                            gen_binary = Path(tmpdir) / "generated"
+                            success, _ = self.cpp_validator.compile(temp_path, gen_binary)
+                            if success:
+                                similarity, diff = self.binary_comparator.compare(
+                                    original_binary, gen_binary, self.target_function
+                                )
+                                result.binary_similarity = similarity
+                                result.objdump_diff = diff
+
                     return result
 
                 # Record this attempt
@@ -236,17 +401,29 @@ class IterativeValidator:
                     "code_snippet": current_code[:500] + "..."
                 })
 
+                # Update stubs based on compile errors
+                if self.auto_stub and result.compile_errors:
+                    error_info = self.stub_generator.analyze_compile_errors(result.compile_errors)
+                    merged = self.stub_generator.merge_stub_info(
+                        self.stub_generator.analyze_code(current_code),
+                        error_info
+                    )
+                    stubs = self.stub_generator.generate_stub_header(merged)
+
                 # Try to fix with LLM
                 if self.client and iteration < self.max_iterations:
                     print(f"Iteration {iteration}: Compile failed, asking LLM to fix...")
                     current_code = self._fix_with_llm(
                         current_code,
                         result.compile_errors,
-                        iteration
+                        iteration,
+                        stubs
                     )
                 else:
                     # No LLM or max iterations reached
                     result.history = history
+                    result.detected_libraries = detected_libraries
+                    result.generated_stubs = stubs
                     return result
 
             finally:
@@ -269,7 +446,10 @@ def validate_decompilation(
     original_binary: str = None,
     expected_output: str = None,
     use_feedback_loop: bool = False,
-    max_iterations: int = 5
+    max_iterations: int = 5,
+    auto_stub: bool = True,
+    compare_binary: bool = False,
+    target_function: str = None
 ) -> ValidationResult:
     """
     Convenience function to validate a decompiled C++ file.
@@ -280,9 +460,17 @@ def validate_decompilation(
         expected_output: Expected stdout (alternative to original_binary)
         use_feedback_loop: If True, use LLM to fix compile errors
         max_iterations: Max LLM fix attempts (if feedback loop enabled)
+        auto_stub: If True, auto-generate stubs for missing dependencies
+        compare_binary: If True, compare generated binary to original using objdump
+        target_function: Specific function to compare (for binary comparison)
     """
     if use_feedback_loop:
-        validator = IterativeValidator(max_iterations=max_iterations)
+        validator = IterativeValidator(
+            max_iterations=max_iterations,
+            auto_stub=auto_stub,
+            compare_binary=compare_binary,
+            target_function=target_function
+        )
         return validator.validate_with_feedback(
             Path(cpp_path),
             Path(original_binary) if original_binary else None,
@@ -302,7 +490,22 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Validate generated C++ by compiling and comparing output"
+        description="Validate generated C++ by compiling and comparing output",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Basic validation
+  python validator.py code.cpp
+
+  # With LLM feedback loop
+  python validator.py code.cpp --feedback
+
+  # Compare to original binary
+  python validator.py code.cpp original_binary --feedback --compare-binary
+
+  # Target specific function
+  python validator.py code.cpp original_binary -f --function main
+"""
     )
     parser.add_argument("cpp_file", help="Path to C++ file to validate")
     parser.add_argument("original_binary", nargs="?", help="Original binary for comparison")
@@ -317,6 +520,21 @@ if __name__ == "__main__":
         default=5,
         help="Max iterations for feedback loop (default: 5)"
     )
+    parser.add_argument(
+        "--no-stub",
+        action="store_true",
+        help="Disable auto-stub generation for missing dependencies"
+    )
+    parser.add_argument(
+        "--compare-binary", "-c",
+        action="store_true",
+        help="Compare generated binary to original using objdump diff"
+    )
+    parser.add_argument(
+        "--function", "-u",
+        type=str,
+        help="Target function name for binary comparison"
+    )
 
     args = parser.parse_args()
 
@@ -324,7 +542,10 @@ if __name__ == "__main__":
         args.cpp_file,
         args.original_binary,
         use_feedback_loop=args.feedback,
-        max_iterations=args.max_iterations
+        max_iterations=args.max_iterations,
+        auto_stub=not args.no_stub,
+        compare_binary=args.compare_binary,
+        target_function=args.function
     )
 
     print(f"Compiles: {result.compiles}")
@@ -337,6 +558,17 @@ if __name__ == "__main__":
 
     if result.history:
         print(f"\nFeedback history: {len(result.history)} failed attempts")
+
+    if result.detected_libraries:
+        print(f"\nDetected libraries: {', '.join(result.detected_libraries.keys())}")
+
+    if result.binary_similarity > 0:
+        print(f"\nBinary similarity: {result.binary_similarity:.2%}")
+
+    if result.objdump_diff:
+        print(f"\nObjdump diff (first 50 lines):")
+        for line in result.objdump_diff.split('\n')[:50]:
+            print(f"  {line}")
 
     if result.actual_output:
         print(f"\nOutput:\n{result.actual_output}")
