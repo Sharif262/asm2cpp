@@ -1,17 +1,30 @@
 # asm2cpp
 
-Binary/Assembly to C++ Decompiler - **Claude Code Skill**
+Binary/Assembly to C++ Decompiler — **skill for Claude Code, Codex, Gemini**
 
-## Quick Start (Skill Usage)
+## Setup
 
-Clone and use immediately in your AI assistant:
+### 1. One-command install
 
 ```bash
-git clone https://github.com/Sharif262/asm2cpp.git
-cd asm2cpp
+curl -LsSf https://raw.githubusercontent.com/Sharif262/asm2cpp/main/scripts/install.sh | sh
 ```
 
-Then in Claude Code, Codex, or Gemini:
+Add the printed PATH line to your shell config (`~/.bashrc` or `~/.zshrc`).
+
+### 2. Initialize your coding agent
+
+In Claude Code / Codex / Gemini: open or clone this repo (or point the agent at the install directory).
+
+### 3. Verify the skill
+
+```
+/skills list
+```
+
+You should see `/decompile`. If not, ensure the agent has access to `.claude/skills/` (or `.agents/skills/`, `.gemini/skills/`).
+
+### 4. Use it
 
 ```
 /decompile my_binary
@@ -19,117 +32,37 @@ Then in Claude Code, Codex, or Gemini:
 /decompile ghidra_output.c
 ```
 
-**That's it.** The skill auto-installs dependencies on first use. No API keys or manual setup needed.
+## What happens when you run /decompile
 
-## What It Does
+1. **asm2cpp** (Python) runs: Ghidra decompiles → parse & filter → output `*_parsed.c`
+2. **Agent** refines parsed C into clean C++17
+3. **Agent** compiles; fixes errors and iterates until it builds
+4. **Agent** compares compiled binary to original (objdump diff)
 
-```
-Binary (.elf, .exe)  →  Ghidra  →  Ugly C  →  LLM  →  Clean C++
-Assembly (.s, .asm)  →  LLM     →  Clean C++
-Ghidra (.c)          →  Parse   →  LLM     →  Clean C++
-```
+No API keys required — the agent uses its own capabilities.
 
-The skill automatically:
-1. Runs Ghidra to decompile (if binary/assembly)
-2. Generates clean, readable C++ code
-3. Compiles to validate correctness
-4. Fixes compilation errors (up to 5 iterations)
-5. Compares output with original binary
+## Supported platforms
 
-## Supported Platforms
-
-| Platform | Skill Location | Invoke |
-|----------|----------------|--------|
+| Platform | Skill path | Invoke |
+|----------|------------|--------|
 | [Claude Code](https://claude.ai/code) | `.claude/skills/decompile/` | `/decompile <file>` |
 | [Codex CLI](https://openai.com/codex) | `.agents/skills/decompile/` | `/decompile <file>` |
 | [Gemini CLI](https://geminicli.com) | `.gemini/skills/decompile/` | `/decompile <file>` |
 
-The skill uses your AI assistant's native capabilities - **no API keys needed**.
+## CLI (optional)
 
-## Example Session
-
-```
-User: /decompile test_binary
-
-Claude: Decompiling test_binary...
-
-Detected input type: binary
-Running Ghidra...
-Parsing 35 functions...
-Generating clean C++...
-Compiling... Success!
-Running tests... 4/4 passed
-
-Output: test_binary_decompiled.cpp
-```
-
-Generated code:
-
-```cpp
-#include <iostream>
-
-int factorial(int n) {
-    if (n <= 1) return 1;
-    return n * factorial(n - 1);
-}
-
-int main() {
-    std::cout << factorial(5) << std::endl;
-    return 0;
-}
-```
-
----
-
-## CLI Usage (Optional)
-
-### One-Command Installer
-
-This single command installs everything:
+Run asm2cpp directly — it does step 1 only (extract + parse). The agent does steps 2–4.
 
 ```bash
-# Project-local install (~/work/asm2cpp/.asm2cpp/bin)
-curl -LsSf https://raw.githubusercontent.com/Sharif262/asm2cpp/main/scripts/install.sh | sh -s -- ~/work/asm2cpp
-
-# Global cache install (~/.cache/asm2cpp)
-curl -LsSf https://raw.githubusercontent.com/Sharif262/asm2cpp/main/scripts/install.sh | sh
+asm2cpp <input> [-o output] [--no-validate] [--list-backends]
 ```
 
-The installer:
-- Installs `uv` if needed
-- Fetches the project
-- Sets up Python + dependencies via `uv.lock`
-- No manual git clone, no global Python installs
-- Reproducible builds
-
-It prints the PATH line to add to `~/.bashrc` or `~/.zshrc`.
-
-After install:
+See `asm2cpp --help` for details. Manual install:
 
 ```bash
-cd ~/work/asm2cpp  # or wherever you installed
-asm2cpp --help     # (once added to PATH)
+git clone https://github.com/Sharif262/asm2cpp.git && cd asm2cpp
+uv pip install -e .   # or: pip install -e .
 ```
-
-### Manual Install
-
-After cloning:
-
-```bash
-git clone https://github.com/Sharif262/asm2cpp.git
-cd asm2cpp
-
-# Install with uv (recommended)
-uv pip install -e .
-
-# Or with pip
-pip install -e .
-
-# Use directly
-asm2cpp my_binary -v
-```
-
-Run `asm2cpp -h` for all options.
 
 ## Requirements
 
@@ -140,51 +73,6 @@ Run `asm2cpp -h` for all options.
 | Ghidra | For binaries | `brew install ghidra` |
 | g++ | For validation | Usually pre-installed |
 
-**No API keys needed** - the skill uses your AI assistant's native capabilities.
-
-**Note:** AST-based feedback (`--mode ast`) requires Python < 3.12 due to tree-sitter-languages compatibility. Other feedback modes work with any Python 3.10+.
-
-## How It Works
-
-1. **Decompile** - Ghidra extracts C from binary
-2. **Parse** - Split into individual functions
-3. **Filter** - Skip STL/boilerplate (99% reduction)
-4. **Refine** - LLM converts to clean C++17
-5. **Validate** - Compile and test
-6. **Fix** - If errors, LLM fixes and retries
-
-### Advanced: Compiler-Augmented Feedback (Trail of Bits)
-
-asm2cpp implements the compiler-augmented feedback loop from Trail of Bits' Codex-Decompiler:
-
-```
-Binary → Decompile → C++ → Compile → New Binary → Compare → Refine
-         ↑___________________________________________________|
-```
-
-**Feedback Modes:**
-- `compiler`: Fix compilation errors (default)
-- `objdump`: Compare disassembly, iterate until match
-- `ast`: Compare code structure (branches, function calls)
-- `multi`: Use all feedback types
-
-**Usage:**
-```bash
-# Basic validation with compiler feedback
-asm2cpp binary -v --feedback
-
-# Round-trip validation with binary comparison
-asm2cpp binary -v --feedback --mode objdump
-
-# AST-based structural matching
-asm2cpp binary -v --feedback --mode ast
-
-# Multi-mode (compiler + objdump + AST)
-asm2cpp binary -v --feedback --mode multi --max-iterations 10
-```
-
-This approach measures decompilation accuracy by compiling the result back to binary and comparing it with the original.
-
 ## Architecture Support
 
 | Arch | Binary | Assembly |
@@ -194,24 +82,23 @@ This approach measures decompilation accuracy by compiling the result back to bi
 | RISC-V | Yes | Yes |
 | x86 | Yes | Yes |
 
-## Project Structure
+## Project structure
 
 ```
 asm2cpp/
 ├── .claude/skills/decompile/    # Claude Code skill
-├── .agents/skills/decompile/    # Codex CLI skill
-├── .gemini/skills/decompile/    # Gemini CLI skill
-├── src/asm2cpp/                 # Core decompiler
-│   ├── decompiler.py           # Main orchestrator
-│   ├── decompilers/            # Ghidra, RetDec integrations
-│   ├── refinement/             # LLM code cleanup
-│   └── validation/             # Compile & test
-└── scripts/                     # Utilities
-
-Generated (git-ignored):
-├── output/                      # Decompiled code
-├── ghidra_output/              # Ghidra raw output
-└── benchmarks/                  # Test repositories
+├── .agents/skills/decompile/    # Codex skill
+├── .gemini/skills/decompile/    # Gemini skill
+├── src/asm2cpp/
+│   ├── cli.py                  # Entry point (asm2cpp)
+│   ├── pipeline.py             # Extract → parse → validate
+│   ├── extract.py              # Ghidra, RetDec, Assembly decompilers
+│   ├── parse.py                # Split & filter Ghidra C
+│   ├── validate.py             # Compile & test
+│   ├── decompilers/            # ghidra, retdec, assembly
+│   ├── analyzers/              # Type, function, dependency analysis
+│   └── validator.py            # IterativeValidator, BinaryComparator
+└── scripts/install.sh          # One-command installer
 ```
 
 ## Without Ghidra

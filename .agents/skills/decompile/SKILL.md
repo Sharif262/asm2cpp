@@ -11,6 +11,10 @@ Automatically decompile binaries, assembly, or Ghidra output to clean, compilabl
 
 ## Usage
 
+**In chat:** type `/decompile <path>` and send. The agent runs the full pipeline and replies in chat.
+
+**File location:** If the agent is sandboxed (can't leave the repo), the user must put the file inside the repo or grant permission for external paths.
+
 ```
 /decompile <binary>                    # Basic decompilation
 /decompile <binary> --validate         # With compilation validation
