@@ -4,9 +4,6 @@ import argparse
 import sys
 from pathlib import Path
 
-from .decompiler import Decompiler
-from .config import Config
-
 
 def main():
     """Main CLI entry point."""
@@ -83,6 +80,10 @@ def main():
     )
 
     args = parser.parse_args()
+
+    # Lazy import to keep --help fast (avoids loading Ghidra/anthropic/etc)
+    from .config import Config
+    from .decompiler import Decompiler
 
     # Create config
     config = Config(
